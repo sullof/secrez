@@ -179,6 +179,15 @@ class Touch extends require("../Command") {
     try {
       this.validate(options);
       this.checkPath(options);
+
+      // Check for git conflicts before creating/modifying files
+      if (!options.help) {
+        const shouldProceed = await this.checkGitConflictsBeforeOperation();
+        if (!shouldProceed) {
+          await this.prompt.run();
+          return;
+        }
+      }
       /* istanbul ignore if  */
       if (!options.generateWallet) {
         if (options.notVisibleContent) {

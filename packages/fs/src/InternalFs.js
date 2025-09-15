@@ -5,6 +5,7 @@ const { config, Entry, ConfigUtils } = require("@secrez/core");
 const Node = require("./Node");
 const Tree = require("./Tree");
 const { ENTRY_EXISTS } = require("./Messages");
+const GitConflictChecker = require("./GitConflictChecker");
 
 class InternalFs {
   constructor(secrez) {
@@ -14,6 +15,7 @@ class InternalFs {
       this.trees = [new Tree(secrez), new Tree(secrez, 1)];
       this.treeIndex = 0;
       this.tree = this.trees[0];
+      this.gitConflictChecker = new GitConflictChecker(secrez);
     } else {
       throw new Error(
         "InternalFs requires a Secrez instance during construction"
@@ -457,6 +459,25 @@ class InternalFs {
 
   deleteFromTreeCache(index) {
     delete this.treeCache[index];
+  }
+
+  async checkGitSyncStatus() {
+    const status = await this.gitConflictChecker.checkForRemoteChanges();
+
+    if (this.gitConflictChecker.hasConflictRisk(status)) {
+      const warningMessage = this.gitConflictChecker.getWarningMessage(status);
+      return {
+        hasRisk: true,
+        message: warningMessage,
+        status: status,
+      };
+    }
+
+    return {
+      hasRisk: false,
+      message: null,
+      status: status,
+    };
   }
 }
 

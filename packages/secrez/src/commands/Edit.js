@@ -184,6 +184,14 @@ class Edit extends require("../Command") {
       this.validate(options, {
         path: true,
       });
+
+      if (!options.help) {
+        // Check for git conflicts before editing files (edit always changes something)
+        const shouldProceed = await this.checkGitConflictsBeforeOperation();
+        if (!shouldProceed) {
+          return;
+        }
+      }
       currentEditor = process.env.EDITOR;
       if (options.internal) {
         process.env.EDITOR = this.getTinyCliEditorBinPath();

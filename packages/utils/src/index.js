@@ -96,20 +96,22 @@ const utils = {
   async execAsync(cmd, cwd, params) {
     return new Promise((resolve) => {
       let json = {};
-      const child = spawn(cmd, params, {
-        cwd,
-        shell: true,
-      });
-      child.stdout.on("data", (data) => {
-        json.message = _.trim(Buffer.from(data).toString("utf8"));
-      });
-      child.stderr.on("data", (data) => {
-        json.error = _.trim(Buffer.from(data).toString("utf8"));
-      });
-      child.on("exit", (code) => {
-        json.code = code;
+      try {
+        const { execSync } = require("child_process");
+        const fullCommand = `${cmd} ${params.join(" ")}`;
+        const result = execSync(fullCommand, {
+          cwd,
+          encoding: "utf8",
+          stdio: ["ignore", "pipe", "pipe"],
+        });
+        json.message = _.trim(result);
+        json.code = 0;
         resolve(json);
-      });
+      } catch (error) {
+        json.error = _.trim(error.stderr?.toString() || error.message);
+        json.code = error.status || 1;
+        resolve(json);
+      }
     });
   },
 
