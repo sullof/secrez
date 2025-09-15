@@ -131,6 +131,39 @@ class Command extends PreCommand {
       }
     }
   }
+
+  /**
+   * Check for git conflicts before performing data-changing operations
+   * Returns true if the operation should proceed, false if it should be cancelled
+   */
+  async checkGitConflictsBeforeOperation() {
+    try {
+      const conflictCheck = await this.internalFs.checkGitSyncStatus();
+      
+      if (conflictCheck.hasRisk) {
+        // Show the warning message
+        this.Logger.yellow(conflictCheck.message);
+        
+        // Ask user if they want to continue
+        const shouldContinue = await this.useInput({
+          type: "confirm",
+          message: "Do you want to continue anyway?",
+          default: false
+        });
+        
+        if (!shouldContinue) {
+          this.Logger.grey("Operation cancelled.");
+          return false;
+        }
+      }
+      
+      return true;
+    } catch (e) {
+      // If git check fails, log a warning but continue
+      this.Logger.yellow("Warning: Could not check git status. Proceeding anyway.");
+      return true;
+    }
+  }
 }
 
 module.exports = Command;

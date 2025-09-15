@@ -147,6 +147,16 @@ class Mv extends require("../Command") {
     }
     try {
       this.validate(options);
+      
+      // Check for git conflicts before moving/renaming files
+      if (!options.help) {
+        const shouldProceed = await this.checkGitConflictsBeforeOperation();
+        if (!shouldProceed) {
+          await this.prompt.run();
+          return;
+        }
+      }
+      
       if (options.find) {
         options.newPath = options.destination;
         options.path = options.find;

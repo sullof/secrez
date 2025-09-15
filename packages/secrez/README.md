@@ -369,6 +369,11 @@ Secrez is not intended to compete with password managers, so do not expect it to
 
 ## History
 
+**2.1.8**
+
+- add `git` command to check repository status and detect remote changes
+- add git conflict detection middleware to prevent conflicts during data-changing operations
+
 **2.1.7**
 
 - add option `--no-export` to `export --crypto-env` to display the encrypted content in the console instead of writing it to a file

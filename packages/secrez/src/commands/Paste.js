@@ -122,6 +122,16 @@ class Paste extends require("../Command") {
     }
     try {
       this.validate(options);
+      
+      // Check for git conflicts before pasting content
+      if (!options.help) {
+        const shouldProceed = await this.checkGitConflictsBeforeOperation();
+        if (!shouldProceed) {
+          await this.prompt.run();
+          return;
+        }
+      }
+      
       let name = await this.paste(options);
       this.Logger.grey("Pasted the clipboard to:");
       this.Logger.reset(name);
