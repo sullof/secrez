@@ -21,7 +21,7 @@ class GitConflictChecker {
 
     try {
       const containerPath = this.secrez.config.container;
-      const gitPath = path.join(containerPath, '.git');
+      const gitPath = path.join(containerPath, ".git");
       this.isGitRepo = await fs.pathExists(gitPath);
       return this.isGitRepo;
     } catch (e) {
@@ -34,7 +34,7 @@ class GitConflictChecker {
    * Get the current git status and remote information
    */
   async getGitStatus() {
-    if (!await this.isGitRepository()) {
+    if (!(await this.isGitRepository())) {
       return null;
     }
 
@@ -42,48 +42,117 @@ class GitConflictChecker {
       const containerPath = this.secrez.config.container;
 
       // Get current branch
-      const currentBranch = await execAsync('git', containerPath, ['branch', '--show-current']);
+      const currentBranch = await execAsync("git", containerPath, [
+        "branch",
+        "--show-current",
+      ]);
+
       if (!currentBranch || !currentBranch.message) {
-        return null;
+        return { error: "Could not determine current branch" };
       }
 
       // Fetch latest remote info
-      await execAsync('git', containerPath, ['fetch', '--quiet']);
-
-      // Check if origin/main exists
-      const remoteExists = await execAsync('git', containerPath, ['rev-parse', '--verify', 'origin/main']);
-      if (!remoteExists || !remoteExists.message) {
-        return null;
+      const fetchResult = await execAsync("git", containerPath, [
+        "fetch",
+        "--quiet",
+      ]);
+      if (fetchResult && fetchResult.error) {
+        return { error: `Network error during fetch: ${fetchResult.error}` };
       }
 
-      // Use origin/main as the remote reference
-      const remoteRef = 'origin/main';
+      // Get the HEAD branch from remote
+      const remoteInfo = await execAsync("git", containerPath, [
+        "remote",
+        "show",
+        "origin",
+      ]);
+      let remoteRef;
+
+      if (remoteInfo && remoteInfo.error) {
+        return { error: `Could not get remote info: ${remoteInfo.error}` };
+      }
+
+      if (remoteInfo && remoteInfo.message) {
+        const lines = remoteInfo.message.split("\n");
+        for (const line of lines) {
+          if (line.includes("HEAD branch:")) {
+            const branchName = line.split("HEAD branch:")[1].trim();
+            remoteRef = `origin/${branchName}`;
+            break;
+          }
+        }
+      }
+      // If still no remote ref found, return error
+      if (!remoteRef) {
+        return { error: "Could not determine remote primary branch" };
+      }
+
+      // Verify the remote reference exists
+      const remoteExists = await execAsync("git", containerPath, [
+        "rev-parse",
+        "--verify",
+        remoteRef,
+      ]);
+
+      if (remoteExists && remoteExists.error) {
+        return {
+          error: `Remote branch ${remoteRef} does not exist: ${remoteExists.error}`,
+        };
+      }
+      if (!remoteExists || !remoteExists.message) {
+        return { error: `Remote branch ${remoteRef} does not exist` };
+      }
 
       // Check if local is behind remote
-      const behind = await execAsync('git', containerPath, ['rev-list', '--count', `HEAD..${remoteRef}`]);
+      const behind = await execAsync("git", containerPath, [
+        "rev-list",
+        "--count",
+        `HEAD..${remoteRef}`,
+      ]);
+      if (behind && behind.error) {
+        return { error: `Could not check if behind remote: ${behind.error}` };
+      }
       if (!behind || !behind.message) {
-        return null;
+        return { error: "Could not determine if local is behind remote" };
       }
 
       // Check if local is ahead of remote
-      const ahead = await execAsync('git', containerPath, ['rev-list', '--count', `${remoteRef}..HEAD`]);
+      const ahead = await execAsync("git", containerPath, [
+        "rev-list",
+        "--count",
+        `${remoteRef}..HEAD`,
+      ]);
+      if (ahead && ahead.error) {
+        return { error: `Could not check if ahead of remote: ${ahead.error}` };
+      }
       if (!ahead || !ahead.message) {
-        return null;
+        return { error: "Could not determine if local is ahead of remote" };
       }
 
       // Check for uncommitted changes
-      const status = await execAsync('git', containerPath, ['status', '--porcelain']);
+      const status = await execAsync("git", containerPath, [
+        "status",
+        "--porcelain",
+      ]);
+      if (status && status.error) {
+        return { error: `Could not check git status: ${status.error}` };
+      }
 
       return {
         localBranch: currentBranch.message.trim(),
         remoteBranch: remoteRef,
         behind: parseInt(behind.message.trim()) || 0,
         ahead: parseInt(ahead.message.trim()) || 0,
-        lastCheck: Date.now()
+        uncommitted: status.message
+          ? status.message.trim().length > 0
+            ? 1
+            : 0
+          : 0,
+        lastCheck: Date.now(),
       };
     } catch (e) {
-      // If git commands fail, assume no git repo or no remote
-      return null;
+      // If git commands fail, return error instead of null
+      return { error: `Git command failed: ${e.message}` };
     }
   }
 
@@ -94,7 +163,7 @@ class GitConflictChecker {
     const now = Date.now();
 
     // Skip check if we've checked recently
-    if (this.lastCheck && (now - this.lastCheck) < this.checkInterval) {
+    if (this.lastCheck && now - this.lastCheck < this.checkInterval) {
       return this.remoteStatus;
     }
 
@@ -112,6 +181,11 @@ class GitConflictChecker {
       return false;
     }
 
+    // If there's an error, we should warn the user
+    if (status.error) {
+      return true;
+    }
+
     // Risk if local is behind remote (remote has new commits that haven't been pulled)
     // This means any local changes will conflict with remote changes
     return status.behind > 0;
@@ -121,6 +195,16 @@ class GitConflictChecker {
    * Get a user-friendly warning message
    */
   getWarningMessage(status = {}) {
+    if (status.error) {
+      return `⚠️  Git Status Check Failed!
+      
+The system cannot check git status due to an error:
+${status.error}
+
+This could be due to network issues, authentication problems, or repository configuration issues.
+Any changes you make now might conflict with remote changes that we cannot detect.`;
+    }
+
     if (status.behind > 0) {
       return `⚠️  Git Conflict Risk Detected!
       
@@ -128,9 +212,7 @@ Your local repository is ${status.behind} commit(s) behind the remote '${status.
 Any changes you make now could lead to merge conflicts when you try to sync later.
 
 Consider quitting Secrez and running in the container:
-  git pull  # to sync with remote changes first
-
-`;
+  git pull  # to sync with remote changes first`;
     }
 
     return null;

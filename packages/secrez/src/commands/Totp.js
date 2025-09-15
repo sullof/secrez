@@ -293,7 +293,7 @@ class Totp extends require("../Command") {
     }
     try {
       this.validate(options);
-      
+
       // Check for git conflicts before setting TOTP secrets
       if (options.set || options.fromClipboard || options.fromImage) {
         const shouldProceed = await this.checkGitConflictsBeforeOperation();
@@ -302,7 +302,7 @@ class Totp extends require("../Command") {
           return;
         }
       }
-      
+
       let token = await this.totp(options);
       if (options.fromImage || options.fromClipboard) {
         this.Logger.grey(token);

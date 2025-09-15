@@ -260,7 +260,7 @@ class Contacts extends require("../Command") {
         options.list = true;
       }
       this.validate(options);
-      
+
       // Check for git conflicts before adding/updating/deleting contacts
       if (options.add || options.update || options.delete || options.rename) {
         const shouldProceed = await this.checkGitConflictsBeforeOperation();
@@ -269,7 +269,7 @@ class Contacts extends require("../Command") {
           return;
         }
       }
-      
+
       let result = await this.contacts(options);
       if (!Array.isArray(result)) {
         result = [result];

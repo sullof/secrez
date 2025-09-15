@@ -184,7 +184,7 @@ class Edit extends require("../Command") {
       this.validate(options, {
         path: true,
       });
-      
+
       if (!options.help) {
         // Check for git conflicts before editing files (edit always changes something)
         const shouldProceed = await this.checkGitConflictsBeforeOperation();

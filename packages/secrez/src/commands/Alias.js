@@ -200,16 +200,21 @@ class Alias extends require("../Command") {
     }
     try {
       this.validate(options);
-      
+
       // Check for git conflicts before creating/modifying/deleting aliases
-      if (options.commandLine || options.previousCommand || options.rename || options.delete) {
+      if (
+        options.commandLine ||
+        options.previousCommand ||
+        options.rename ||
+        options.delete
+      ) {
         const shouldProceed = await this.checkGitConflictsBeforeOperation();
         if (!shouldProceed) {
           await this.prompt.run();
           return;
         }
       }
-      
+
       let result = await this.alias(options);
       if (!Array.isArray(result)) {
         result = [result];

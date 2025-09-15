@@ -117,7 +117,7 @@ class Rm extends require("../Command") {
     } else {
       try {
         this.validate(options);
-        
+
         // Check for git conflicts before removing files
         if (!options.help) {
           const shouldProceed = await this.checkGitConflictsBeforeOperation();
@@ -126,7 +126,7 @@ class Rm extends require("../Command") {
             return;
           }
         }
-        
+
         let deleted = await this.rm(options);
         if (deleted.length === 0) {
           this.Logger.grey("No files have been deleted.");

@@ -139,7 +139,7 @@ class Ds extends require("../Command") {
         options.list = true;
       }
       this.validate(options);
-      
+
       // Check for git conflicts before creating/renaming/deleting datasets
       if (options.create || options.rename || options.delete) {
         const shouldProceed = await this.checkGitConflictsBeforeOperation();
@@ -148,7 +148,7 @@ class Ds extends require("../Command") {
           return;
         }
       }
-      
+
       let result = await this.ds(options);
       if (result) {
         if (options.list) {

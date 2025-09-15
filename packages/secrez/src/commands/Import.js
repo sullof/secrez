@@ -449,7 +449,7 @@ class Import extends require("../Command") {
     }
     try {
       this.validate(options);
-      
+
       // Check for git conflicts before importing files (skip if help or simulate)
       if (!options.help && !options.simulate) {
         const shouldProceed = await this.checkGitConflictsBeforeOperation();
@@ -458,7 +458,7 @@ class Import extends require("../Command") {
           return;
         }
       }
-      
+
       if (options.expand) {
         await this.expand(options);
       } else {

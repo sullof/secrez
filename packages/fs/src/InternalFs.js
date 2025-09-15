@@ -460,6 +460,25 @@ class InternalFs {
   deleteFromTreeCache(index) {
     delete this.treeCache[index];
   }
+
+  async checkGitSyncStatus() {
+    const status = await this.gitConflictChecker.checkForRemoteChanges();
+
+    if (this.gitConflictChecker.hasConflictRisk(status)) {
+      const warningMessage = this.gitConflictChecker.getWarningMessage(status);
+      return {
+        hasRisk: true,
+        message: warningMessage,
+        status: status,
+      };
+    }
+
+    return {
+      hasRisk: false,
+      message: null,
+      status: status,
+    };
+  }
 }
 
 module.exports = InternalFs;

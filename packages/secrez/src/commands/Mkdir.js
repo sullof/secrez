@@ -48,7 +48,7 @@ class Mkdir extends require("../Command") {
     try {
       this.validate(options);
       this.checkPath(options);
-      
+
       // Check for git conflicts before creating directories
       if (!options.help) {
         const shouldProceed = await this.checkGitConflictsBeforeOperation();
@@ -57,7 +57,7 @@ class Mkdir extends require("../Command") {
           return;
         }
       }
-      
+
       let data = await this.internalFs.getTreeIndexAndPath(options.path);
       let sanitizedPath = Entry.sanitizePath(data.path);
       if (sanitizedPath !== data.path) {

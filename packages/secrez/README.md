@@ -152,6 +152,7 @@ Available commands:
   edit      Edits a file containing a secret.
   export    Export encrypted data to the OS in the current local folder
   find      Find a secret.
+  git       Checks if there is a repo and if there are conflict risks.
   help      This help.
   import    Import files from the OS into the current folder
   lcat      Similar to a standard cat in the external fs.

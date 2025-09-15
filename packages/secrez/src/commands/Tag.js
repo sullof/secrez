@@ -196,7 +196,7 @@ class Tag extends require("../Command") {
     }
     try {
       this.validate(options);
-      
+
       // Check for git conflicts before adding/removing tags
       if (options.add || options.remove) {
         const shouldProceed = await this.checkGitConflictsBeforeOperation();
@@ -205,7 +205,7 @@ class Tag extends require("../Command") {
           return;
         }
       }
-      
+
       let result = await this.tag(options);
       if (options.list) {
         if (options.global) {

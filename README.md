@@ -152,6 +152,7 @@ Available commands:
   edit      Edits a file containing a secret.
   export    Export encrypted data to the OS in the current local folder
   find      Find a secret.
+  git       Checks if there is a repo and if there are conflict risks.
   help      This help.
   import    Import files from the OS into the current folder
   lcat      Similar to a standard cat in the external fs.
@@ -368,6 +369,11 @@ Starting from version 0.8.0, Secrez allowed you to exchange encrypted messages w
 Secrez is not intended to compete with password managers, so do not expect it to have features like "form filling." The idea behind Secrez originated in 2017 when I was participating in many ICOs, and I had so many files to save, but any password manager I used was not very effective. Secrez is file-oriented and will likely remain so. However, it is open source, and someone is welcome to build a GUI or mobile app built on it.
 
 ## History
+
+**2.1.8**
+
+- add `git` command to check repository status and detect remote changes
+- add git conflict detection middleware to prevent conflicts during data-changing operations
 
 **2.1.7**
 

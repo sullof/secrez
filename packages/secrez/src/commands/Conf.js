@@ -486,7 +486,7 @@ class Conf extends require("../Command") {
       //   options.list = true
       // }
       this.validate(options);
-      
+
       // Check for git conflicts before changing password or iterations
       if (options.newPassword || options.newIterationsNumber) {
         const shouldProceed = await this.checkGitConflictsBeforeOperation();
@@ -494,7 +494,7 @@ class Conf extends require("../Command") {
           return;
         }
       }
-      
+
       // if (options.fido2 && options.recoveryCode) {
       //   throw new Error('Conflicting params. Launch "conf -h" for examples.')
       // }

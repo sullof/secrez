@@ -613,5 +613,4 @@ describe("#InternalFs", function () {
       assert.equal(res.join(" "), "file1 file2");
     });
   });
-
 });

@@ -75,7 +75,7 @@ class Use extends require("../Command") {
     }
     try {
       this.validate(options);
-      
+
       // Check for git conflicts before creating new datasets
       if (options.create) {
         const shouldProceed = await this.checkGitConflictsBeforeOperation();
@@ -84,7 +84,7 @@ class Use extends require("../Command") {
           return;
         }
       }
-      
+
       let result = await this.use(options);
       if (result) {
         this.Logger.reset(result);
