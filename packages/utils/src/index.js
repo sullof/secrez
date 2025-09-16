@@ -98,7 +98,19 @@ const utils = {
       let json = {};
       try {
         const { execSync } = require("child_process");
-        const fullCommand = `${cmd} ${params.join(" ")}`;
+        // Properly escape the command and arguments to avoid security warnings
+        const escapedParams = params.map((param) => {
+          // Escape single quotes and wrap in single quotes if needed
+          if (
+            param.includes(" ") ||
+            param.includes("'") ||
+            param.includes('"')
+          ) {
+            return `'${param.replace(/'/g, "'\"'\"'")}'`;
+          }
+          return param;
+        });
+        const fullCommand = `${cmd} ${escapedParams.join(" ")}`;
         const result = execSync(fullCommand, {
           cwd,
           encoding: "utf8",

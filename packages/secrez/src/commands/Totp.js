@@ -303,6 +303,11 @@ class Totp extends require("../Command") {
         }
       }
 
+      // Track the last path used if a path was specified
+      if (options.path) {
+        this.prompt.setLastPath(options.path);
+      }
+
       let token = await this.totp(options);
       if (options.fromImage || options.fromClipboard) {
         this.Logger.grey(token);

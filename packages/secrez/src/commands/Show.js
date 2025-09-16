@@ -135,6 +135,8 @@ class Show extends require("../Command") {
       this.validate(options, {
         path: true,
       });
+      // Track the last path used
+      this.prompt.setLastPath(options.path);
       const content = await this.show(options);
       if (content) {
         this.Logger.reset(content);

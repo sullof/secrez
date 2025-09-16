@@ -106,6 +106,8 @@ describe("#GitConflictChecker", function () {
     });
 
     afterEach(async function () {
+      this.timeout(15000); // Increase timeout for git cleanup operations
+
       // Clean up any changes made during the test to restore the repository to its original state
       try {
         const env = {
@@ -224,17 +226,27 @@ describe("#GitConflictChecker", function () {
         testInternalFs.gitConflictChecker.hasConflictRisk(mockStatus);
       assert.isTrue(hasRisk);
 
-      // Test the actual git status (which will be up to date due to fetch)
+      // Test the actual git status - localDir2 should be behind after the push from localDir1
       const status =
         await testInternalFs.gitConflictChecker.checkForRemoteChanges();
       assert.isNotNull(status);
+
       assert.isNumber(status.behind);
       assert.isNumber(status.ahead);
 
-      // The actual status should be up to date after fetch
+      // localDir2 should be behind because it hasn't merged the remote changes yet
+      // This is the correct behavior - fetch updates the remote refs but doesn't merge
       const actualRisk =
         testInternalFs.gitConflictChecker.hasConflictRisk(status);
-      assert.isFalse(actualRisk); // Should be false because fetch updated the local repo
+
+      // If there's an error, that's also a valid reason for conflict risk
+      if (status.error) {
+        assert.isTrue(actualRisk); // Error should indicate conflict risk
+      } else {
+        // localDir2 is behind remote, so there should be conflict risk
+        assert.isTrue(actualRisk); // Should be true because localDir2 is behind remote
+        assert.isTrue(status.behind > 0); // Should be behind the remote
+      }
     });
 
     it("should get warning message for conflict risk", async function () {

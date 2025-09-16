@@ -84,6 +84,14 @@ class Command extends PreCommand {
               ][1] || undefined,
           ];
         }
+        // Handle < syntax for last path
+        if (
+          self.prompt.cache &&
+          self.prompt.cache.lastPath &&
+          options.path === "<"
+        ) {
+          return [options.path + self.prompt.cache.lastPath[0]];
+        }
         return await self.prompt[
           extraOptions.external ? "externalFs" : "internalFs"
         ].getFileList(options, true);

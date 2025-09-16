@@ -187,6 +187,8 @@ class Cat extends require("../Command") {
       this.validate(options, {
         path: true,
       });
+      // Track the last path used
+      this.prompt.setLastPath(options.path);
       let fn = path.basename(options.path);
       let data = await this.cat(options);
       let extra = options.all || options.metadata || options.versions;

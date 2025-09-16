@@ -163,6 +163,10 @@ class Ls extends require("../Command") {
     }
     try {
       this.validate(options);
+      // Track the last path used if a path was specified
+      if (options.path) {
+        this.prompt.setLastPath(options.path);
+      }
       let list = await this.ls(options);
       list = list.filter((e) => !/^\./.test(e) || options.all).sort();
       if (list.length) {

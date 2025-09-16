@@ -18,9 +18,31 @@ class MainPromptMock {
     this.cache = {};
   }
 
-  setCache() {}
+  setCache(name, index, content) {
+    if (!this.cache[name]) {
+      this.cache[name] = {};
+    }
+    this.cache[name][index] = content;
+  }
 
-  getCache() {}
+  getCache(name, index) {
+    if (!this.cache[name]) {
+      return null;
+    }
+    if (typeof index !== "undefined") {
+      return this.cache[name][index];
+    } else {
+      return this.cache[name];
+    }
+  }
+
+  setLastPath(path) {
+    this.setCache("lastPath", 0, path);
+  }
+
+  getLastPath() {
+    return this.getCache("lastPath", 0);
+  }
 
   async run(options) {}
 
