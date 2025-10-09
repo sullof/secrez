@@ -182,7 +182,8 @@ describe("#GitConflictChecker", function () {
       assert.equal(status.behind, 0); // Should be up to date initially
       assert.equal(status.ahead, 0);
 
-      const riskInfo = testInternalFs.gitConflictChecker.hasConflictRisk(status);
+      const riskInfo =
+        testInternalFs.gitConflictChecker.hasConflictRisk(status);
       assert.isFalse(riskInfo.hasRisk);
     });
 
@@ -258,9 +259,12 @@ describe("#GitConflictChecker", function () {
         ahead: 0,
       };
 
-      const riskInfo = testInternalFs.gitConflictChecker.hasConflictRisk(mockStatus);
-      const message =
-        testInternalFs.gitConflictChecker.getWarningMessage(mockStatus, riskInfo);
+      const riskInfo =
+        testInternalFs.gitConflictChecker.hasConflictRisk(mockStatus);
+      const message = testInternalFs.gitConflictChecker.getWarningMessage(
+        mockStatus,
+        riskInfo
+      );
       assert.isString(message);
       assert.include(message, "Git Conflict Risk Detected");
       assert.include(message, "2 commit(s) behind");
@@ -280,7 +284,8 @@ describe("#GitConflictChecker", function () {
       assert.isNotNull(status);
       assert.isNumber(status.behind);
 
-      const riskInfo = testInternalFs.gitConflictChecker.hasConflictRisk(status);
+      const riskInfo =
+        testInternalFs.gitConflictChecker.hasConflictRisk(status);
       // Should be up to date, so no risk
       assert.isFalse(riskInfo.hasRisk);
 
@@ -291,7 +296,6 @@ describe("#GitConflictChecker", function () {
       assert.isNotNull(status2);
       assert.equal(status2.behind, status.behind); // Should be the same as first check
     });
-
 
     it("should reset cache", function () {
       testInternalFs.gitConflictChecker.resetCache();

@@ -71,7 +71,7 @@ describe("#Git", function () {
 
   beforeEach(async function () {
     this.timeout(10000);
-    
+
     // Initialize first prompt with localDir1
     prompt = new MainPrompt();
     await prompt.init({
@@ -169,11 +169,11 @@ describe("#Git", function () {
 
   it("should handle non-git repository", async function () {
     this.timeout(10000);
-    
+
     // Create a temporary non-git directory with .secrez structure
     const nonGitDir = path.join(testDir, "non-git-secrez");
     await fs.emptyDir(nonGitDir);
-    
+
     // Create a temporary prompt and signup in the non-git directory
     const tempPrompt = new MainPrompt();
     await tempPrompt.init({
@@ -188,18 +188,18 @@ describe("#Git", function () {
     inspect.restore();
     let output = inspect.output.map((e) => decolorize(e));
     assert.isTrue(/Not a git repository/.test(output.join("")));
-    
+
     // Clean up
     await fs.remove(nonGitDir);
   });
 
   it("should allow normal operations in non-git repository", async function () {
     this.timeout(10000);
-    
+
     // Create a temporary non-git directory with .secrez structure
     const nonGitDir = path.join(testDir, "non-git-operations");
     await fs.emptyDir(nonGitDir);
-    
+
     // Create a prompt and signup in the non-git directory
     const tempPrompt = new MainPrompt();
     await tempPrompt.init({
@@ -219,7 +219,7 @@ describe("#Git", function () {
     });
     inspect.restore();
     let output = inspect.output.map((e) => decolorize(e));
-    
+
     // Should NOT show any git warnings
     assert.isFalse(/Repository State Changed Externally/.test(output.join("")));
     assert.isFalse(/Git Conflict Risk/.test(output.join("")));
@@ -232,16 +232,18 @@ describe("#Git", function () {
     assert.isTrue(/test-file-1\.txt/.test(output));
 
     // Create another file - should also work
-    await noPrint(tempPrompt.commands.touch.exec({
-      path: "/test-file-2.txt",
-    }));
-    
+    await noPrint(
+      tempPrompt.commands.touch.exec({
+        path: "/test-file-2.txt",
+      })
+    );
+
     inspect = stdout.inspect();
     await tempPrompt.commands.ls.exec({ path: "/", list: true });
     inspect.restore();
     output = inspect.output.map((e) => decolorize(e)).join("");
     assert.isTrue(/test-file-2\.txt/.test(output));
-    
+
     // Clean up
     await fs.remove(nonGitDir);
   });
@@ -258,15 +260,15 @@ describe("#Git", function () {
     const C3 = prompt3.commands;
     await prompt3.secrez.signin(password, iterations);
     await prompt3.internalFs.init();
-    
+
     // Verify git fingerprint was captured (since this IS a git repo)
     assert.isNotNull(prompt3.internalFs.gitConflictChecker.initialGitState);
-    
+
     const env = {
       ...process.env,
       GIT_SSH_COMMAND: `ssh -i ${tempSshKeyPath} -o StrictHostKeyChecking=no`,
     };
-    
+
     inspect = stdout.inspect();
     await C.ls.exec({ path: "/test-before-external-commit-*", list: true });
     inspect.restore();
@@ -277,12 +279,13 @@ describe("#Git", function () {
       await noPrint(C.rm.exec({ path: file }));
     }
 
-
     // Create a new file
     const newPath = "/test-before-external-commit-" + Date.now();
-    await noPrint(C.touch.exec({
-      path: newPath,
-    }));
+    await noPrint(
+      C.touch.exec({
+        path: newPath,
+      })
+    );
 
     // Quit the prompt
     await noPrint(C.quit.exec({}));
@@ -290,7 +293,11 @@ describe("#Git", function () {
     // Now run git commands OUTSIDE of Secrez to commit and push
     // This simulates a user committing in another terminal while Secrez is running
     await execAsync("git", localDir1, ["add", "-A"]);
-    await execAsync("git", localDir1, ["commit", "-m", "External commit while Secrez running"]);
+    await execAsync("git", localDir1, [
+      "commit",
+      "-m",
+      "External commit while Secrez running",
+    ]);
     await execAsync("git", localDir1, ["push", "origin", "main"], { env });
 
     // Now C3's repository state has changed externally (new HEAD commit)
@@ -304,7 +311,9 @@ describe("#Git", function () {
 
     // Should show the external change warning
     assert.isTrue(/Repository State Changed Externally/.test(output.join("")));
-    assert.isTrue(/only READ operations and QUIT are allowed/.test(output.join("")));
+    assert.isTrue(
+      /only READ operations and QUIT are allowed/.test(output.join(""))
+    );
 
     // Verify the file was NOT created (operation was blocked)
     inspect = stdout.inspect();
@@ -312,6 +321,5 @@ describe("#Git", function () {
     inspect.restore();
     output = inspect.output.map((e) => decolorize(e));
     assert.isFalse(inspect.output.length === 1);
-    
   });
 });

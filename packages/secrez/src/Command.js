@@ -154,7 +154,9 @@ class Command extends PreCommand {
 
         // If bypass is not allowed (e.g., external changes detected), block the operation
         if (!conflictCheck.allowBypass) {
-          this.Logger.grey("Operation blocked for data integrity. Please quit and re-enter Secrez.");
+          this.Logger.grey(
+            "Operation blocked for data integrity. Please quit and re-enter Secrez."
+          );
           return false;
         }
 

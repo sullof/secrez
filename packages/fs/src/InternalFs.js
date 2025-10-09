@@ -27,7 +27,7 @@ class InternalFs {
     // eslint-disable-next-line require-atomic-updates
     await this.tree.load();
     await this.trashToBeDeleted(0);
-    
+
     // Capture initial git state when entering the account
     await this.gitConflictChecker.captureInitialState();
   }
@@ -471,7 +471,10 @@ class InternalFs {
     const riskInfo = this.gitConflictChecker.hasConflictRisk(currentStatus);
 
     if (riskInfo.hasRisk) {
-      const warningMessage = this.gitConflictChecker.getWarningMessage(currentStatus, riskInfo);
+      const warningMessage = this.gitConflictChecker.getWarningMessage(
+        currentStatus,
+        riskInfo
+      );
       return {
         hasRisk: true,
         riskType: riskInfo.type,

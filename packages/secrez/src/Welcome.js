@@ -250,38 +250,46 @@ Thanks.`);
   }
 
   async handleDeprecatedFido2() {
-    Logger.yellow("FIDO2 second factor authentication is no longer supported in this version.");
+    Logger.yellow(
+      "FIDO2 second factor authentication is no longer supported in this version."
+    );
     Logger.grey("Removing deprecated FIDO2 configuration...");
-    
+
     try {
       const conf = await this.secrez.readConf();
       const data = conf.data;
-      
+
       if (data.keys) {
         // Remove all FIDO2 keys from the configuration
         delete data.keys;
-        
+
         // Save the cleaned configuration
         await this.secrez.saveConf(conf);
-        
+
         Logger.green("FIDO2 configuration has been removed successfully.");
         Logger.grey("You can now login with your master password only.");
-        
+
         // Try to login again with the cleaned configuration
         let errorCode = await this.login();
         if (errorCode === 1) {
-          Logger.red("Login still failed. Please check your password or create a new account.");
+          Logger.red(
+            "Login still failed. Please check your password or create a new account."
+          );
           // eslint-disable-next-line no-process-exit
           process.exit(1);
         }
       } else {
-        Logger.red("No FIDO2 keys found, but login still requires second factor. This may indicate a corrupted configuration.");
+        Logger.red(
+          "No FIDO2 keys found, but login still requires second factor. This may indicate a corrupted configuration."
+        );
         // eslint-disable-next-line no-process-exit
         process.exit(1);
       }
     } catch (e) {
       Logger.red(`Failed to clean FIDO2 configuration: ${e.message}`);
-      Logger.grey("You may need to manually remove the keys.json file and create a new account.");
+      Logger.grey(
+        "You may need to manually remove the keys.json file and create a new account."
+      );
       // eslint-disable-next-line no-process-exit
       process.exit(1);
     }

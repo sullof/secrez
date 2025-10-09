@@ -49,7 +49,7 @@ class GitConflictChecker {
     if (!status || status.error) {
       return null;
     }
-    
+
     // Create a fingerprint based on the repository state
     return {
       localBranch: status.localBranch,
@@ -251,18 +251,18 @@ class GitConflictChecker {
 
     // Check if repository has changed externally (e.g., pull in another terminal)
     if (this.hasRepositoryChanged(status)) {
-      return { hasRisk: true, type: 'external_change', allowBypass: false };
+      return { hasRisk: true, type: "external_change", allowBypass: false };
     }
 
     // If there's an error, we should warn the user
     if (status.error) {
-      return { hasRisk: true, type: 'error', allowBypass: true };
+      return { hasRisk: true, type: "error", allowBypass: true };
     }
 
     // Risk if local is behind remote (remote has new commits that haven't been pulled)
     // This means any local changes will conflict with remote changes
     if (status.behind > 0) {
-      return { hasRisk: true, type: 'behind_remote', allowBypass: true };
+      return { hasRisk: true, type: "behind_remote", allowBypass: true };
     }
 
     return { hasRisk: false, type: null };
@@ -273,7 +273,7 @@ class GitConflictChecker {
    */
   getWarningMessage(status = {}, riskInfo = {}) {
     // Check for external repository changes first (highest priority)
-    if (riskInfo.type === 'external_change') {
+    if (riskInfo.type === "external_change") {
       return `🚫  Repository State Changed Externally!
       
 The git repository state has changed since you entered your account.
