@@ -7,6 +7,7 @@ class GitConflictChecker {
     this.secrez = secrez;
     this.isGitRepo = null;
     this.remoteStatus = null;
+    this.initialGitState = null; // Initial state captured at account entry
     this.lastCheck = null;
     this.checkInterval = 30000; // 30 seconds between checks
   }
@@ -31,6 +32,61 @@ class GitConflictChecker {
   }
 
   /**
+   * Capture the initial git state when entering the account
+   */
+  async captureInitialState() {
+    const status = await this.getGitStatus();
+    if (status && !status.error) {
+      this.initialGitState = this.getGitFingerprint(status);
+    }
+    return status;
+  }
+
+  /**
+   * Get a fingerprint of the current git state for comparison
+   */
+  getGitFingerprint(status) {
+    if (!status || status.error) {
+      return null;
+    }
+    
+    // Create a fingerprint based on the repository state
+    return {
+      localBranch: status.localBranch,
+      remoteBranch: status.remoteBranch,
+      headCommit: status.headCommit,
+      behind: status.behind,
+      ahead: status.ahead,
+      uncommitted: status.uncommitted,
+    };
+  }
+
+  /**
+   * Check if the repository state has changed since initial capture
+   */
+  hasRepositoryChanged(currentStatus) {
+    if (!this.initialGitState || !currentStatus || currentStatus.error) {
+      return false;
+    }
+
+    const currentFingerprint = this.getGitFingerprint(currentStatus);
+    if (!currentFingerprint) {
+      return false;
+    }
+
+    // Check if any aspect of the repository has changed
+    // Most importantly, check if HEAD commit has changed (e.g., after pull)
+    return (
+      this.initialGitState.localBranch !== currentFingerprint.localBranch ||
+      this.initialGitState.remoteBranch !== currentFingerprint.remoteBranch ||
+      this.initialGitState.headCommit !== currentFingerprint.headCommit ||
+      this.initialGitState.behind !== currentFingerprint.behind ||
+      this.initialGitState.ahead !== currentFingerprint.ahead ||
+      this.initialGitState.uncommitted !== currentFingerprint.uncommitted
+    );
+  }
+
+  /**
    * Get the current git status and remote information
    */
   async getGitStatus() {
@@ -49,6 +105,16 @@ class GitConflictChecker {
 
       if (!currentBranch || !currentBranch.message) {
         return { error: "Could not determine current branch" };
+      }
+
+      // Get the HEAD commit hash for tracking changes
+      const headCommit = await execAsync("git", containerPath, [
+        "rev-parse",
+        "HEAD",
+      ]);
+
+      if (!headCommit || !headCommit.message) {
+        return { error: "Could not determine HEAD commit" };
       }
 
       // Fetch latest remote info
@@ -141,6 +207,7 @@ class GitConflictChecker {
       return {
         localBranch: currentBranch.message.trim(),
         remoteBranch: remoteRef,
+        headCommit: headCommit.message.trim(),
         behind: parseInt(behind.message.trim()) || 0,
         ahead: parseInt(ahead.message.trim()) || 0,
         uncommitted: status.message
@@ -175,26 +242,49 @@ class GitConflictChecker {
 
   /**
    * Determine if there's a risk of conflicts
+   * Returns an object with risk level and details
    */
   hasConflictRisk(status) {
     if (!status) {
-      return false;
+      return { hasRisk: false, type: null };
+    }
+
+    // Check if repository has changed externally (e.g., pull in another terminal)
+    if (this.hasRepositoryChanged(status)) {
+      return { hasRisk: true, type: 'external_change', allowBypass: false };
     }
 
     // If there's an error, we should warn the user
     if (status.error) {
-      return true;
+      return { hasRisk: true, type: 'error', allowBypass: true };
     }
 
     // Risk if local is behind remote (remote has new commits that haven't been pulled)
     // This means any local changes will conflict with remote changes
-    return status.behind > 0;
+    if (status.behind > 0) {
+      return { hasRisk: true, type: 'behind_remote', allowBypass: true };
+    }
+
+    return { hasRisk: false, type: null };
   }
 
   /**
    * Get a user-friendly warning message
    */
-  getWarningMessage(status = {}) {
+  getWarningMessage(status = {}, riskInfo = {}) {
+    // Check for external repository changes first (highest priority)
+    if (riskInfo.type === 'external_change') {
+      return `🚫  Repository State Changed Externally!
+      
+The git repository state has changed since you entered your account.
+This likely means a 'git pull' or other git operation was performed in another terminal.
+
+Secrez cannot safely read these changes while running.
+For data integrity, only READ operations and QUIT are allowed.
+
+Please quit Secrez and re-enter your account to sync with the new repository state.`;
+    }
+
     if (status.error) {
       return `⚠️  Git Status Check Failed!
       
@@ -224,6 +314,7 @@ Consider quitting Secrez and running in the container:
   resetCache() {
     this.isGitRepo = null;
     this.remoteStatus = null;
+    this.initialGitState = null;
     this.lastCheck = null;
   }
 }

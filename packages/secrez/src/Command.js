@@ -152,7 +152,13 @@ class Command extends PreCommand {
         // Show the warning message
         this.Logger.yellow(conflictCheck.message);
 
-        // Ask user if they want to continue
+        // If bypass is not allowed (e.g., external changes detected), block the operation
+        if (!conflictCheck.allowBypass) {
+          this.Logger.grey("Operation blocked for data integrity. Please quit and re-enter Secrez.");
+          return false;
+        }
+
+        // Otherwise, ask user if they want to continue
         const shouldContinue = await this.useInput({
           type: "confirm",
           message: "Do you want to continue anyway?",

@@ -1,6 +1,6 @@
 {
   "name": "secrez",
-  "version": "2.1.9",
+  "version": "2.1.10",
   "license": "MIT",
   "scripts": {
     "dev": "cross-env NODE_ENV=dev bin/secrez.js -c `pwd`/tmp/secrez-dev -i 1e3 -l `pwd`/tmp",
@@ -17,7 +17,7 @@
     "@secrez/core": "workspace:~1.0.5",
     "@secrez/crypto": "workspace:~1.0.4",
     "@secrez/eth": "workspace:~0.0.4",
-    "@secrez/fs": "workspace:~1.0.6",
+    "@secrez/fs": "workspace:~1.0.7",
     "@secrez/utils": "workspace:~1.0.4",
     "case": "^1.6.3",
     "chalk": "^3.0.0",

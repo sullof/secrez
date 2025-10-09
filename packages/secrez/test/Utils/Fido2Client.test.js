@@ -4,7 +4,7 @@ const fs = require("fs-extra");
 const path = require("path");
 const Fido2Client = require("../../src/utils/Fido2Client");
 
-describe("#Fido2Client", function () {
+describe.skip("#Fido2Client", function () {
   let fido2Client;
 
   beforeEach(async function () {

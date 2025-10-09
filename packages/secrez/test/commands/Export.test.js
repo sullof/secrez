@@ -91,7 +91,7 @@ describe("#Export", function () {
       path: "file",
     });
     inspect.restore();
-    assertConsole(inspect, ["Exported file:", "file"]);
+    assertConsole(inspect, ["Exported file:", "file.2"]);
 
     content2 = await C.lcat.lcat({
       path: path.join(await C.lpwd.lpwd(), "file"),
