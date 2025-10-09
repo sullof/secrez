@@ -75,6 +75,14 @@ class MainPrompt extends require("./CommandPrompt") {
     }
   }
 
+  setLastPath(path) {
+    this.setCache("lastPath", 0, path);
+  }
+
+  getLastPath() {
+    return this.getCache("lastPath", 0);
+  }
+
   prePromptMessage(options = {}) {
     this.resetTimeout();
     return chalk.reset(

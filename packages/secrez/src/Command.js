@@ -84,6 +84,14 @@ class Command extends PreCommand {
               ][1] || undefined,
           ];
         }
+        // Handle < syntax for last path
+        if (
+          self.prompt.cache &&
+          self.prompt.cache.lastPath &&
+          options.path === "<"
+        ) {
+          return [options.path + self.prompt.cache.lastPath[0]];
+        }
         return await self.prompt[
           extraOptions.external ? "externalFs" : "internalFs"
         ].getFileList(options, true);
@@ -144,7 +152,15 @@ class Command extends PreCommand {
         // Show the warning message
         this.Logger.yellow(conflictCheck.message);
 
-        // Ask user if they want to continue
+        // If bypass is not allowed (e.g., external changes detected), block the operation
+        if (!conflictCheck.allowBypass) {
+          this.Logger.grey(
+            "Operation blocked for data integrity. Please quit and re-enter Secrez."
+          );
+          return false;
+        }
+
+        // Otherwise, ask user if they want to continue
         const shouldContinue = await this.useInput({
           type: "confirm",
           message: "Do you want to continue anyway?",

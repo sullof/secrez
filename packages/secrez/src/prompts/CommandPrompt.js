@@ -243,6 +243,10 @@ class CommandPrompt {
     if (/ (#|£)\d+(\w+:|)\/[\w/]+/.test(line)) {
       line = line.replace(/ (#|£)\d+((\w+:|)\/[\w/]+)/, " $2");
     }
+    // Handle < syntax for last path
+    if (/ </.test(line)) {
+      line = line.replace(/</, "");
+    }
     return line;
   }
 

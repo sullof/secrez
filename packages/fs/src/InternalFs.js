@@ -27,6 +27,9 @@ class InternalFs {
     // eslint-disable-next-line require-atomic-updates
     await this.tree.load();
     await this.trashToBeDeleted(0);
+
+    // Capture initial git state when entering the account
+    await this.gitConflictChecker.captureInitialState();
   }
 
   getFullPath(entry) {
@@ -462,21 +465,31 @@ class InternalFs {
   }
 
   async checkGitSyncStatus() {
-    const status = await this.gitConflictChecker.checkForRemoteChanges();
+    // First, check for external repository changes WITHOUT using cache
+    // This is critical - we must always get fresh git status to detect external changes
+    const currentStatus = await this.gitConflictChecker.getGitStatus();
+    const riskInfo = this.gitConflictChecker.hasConflictRisk(currentStatus);
 
-    if (this.gitConflictChecker.hasConflictRisk(status)) {
-      const warningMessage = this.gitConflictChecker.getWarningMessage(status);
+    if (riskInfo.hasRisk) {
+      const warningMessage = this.gitConflictChecker.getWarningMessage(
+        currentStatus,
+        riskInfo
+      );
       return {
         hasRisk: true,
+        riskType: riskInfo.type,
+        allowBypass: riskInfo.allowBypass,
         message: warningMessage,
-        status: status,
+        status: currentStatus,
       };
     }
 
     return {
       hasRisk: false,
+      riskType: null,
+      allowBypass: true,
       message: null,
-      status: status,
+      status: currentStatus,
     };
   }
 }
