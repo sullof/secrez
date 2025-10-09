@@ -370,6 +370,12 @@ Secrez is not intended to compete with password managers, so do not expect it to
 
 ## History
 
+**2.1.10**
+
+- add external git change detection to block operations when repository state changes outside of Secrez (e.g., `git pull` in another terminal)
+- fix critical cache bug in git conflict detection that prevented external changes from being detected within 30 seconds
+- improve git conflict detection tests with comprehensive coverage for both git and non-git repositories
+
 **2.1.9**
 
 - add `<` parameter to reuse the last used path in commands (e.g., `totp <` will use the last path from previous command)
