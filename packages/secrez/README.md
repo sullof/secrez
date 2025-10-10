@@ -370,6 +370,10 @@ Secrez is not intended to compete with password managers, so do not expect it to
 
 ## History
 
+**2.1.11-beta.0**
+
+- fix warning "(node:70960) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities" caused by the Git checker
+
 **2.1.10**
 
 - add external git change detection to block operations when repository state changes outside of Secrez (e.g., `git pull` in another terminal)
