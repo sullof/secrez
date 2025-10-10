@@ -882,8 +882,8 @@ Thank you for any contributions! 😉
 ## Test coverage
 
 ```
-  162 passing (2m)
-  2 pending
+  162 passing (1m)
+  1 pending
 
 --------------------|---------|----------|---------|---------|--------------------------------------
 File                | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                    
@@ -939,7 +939,7 @@ All files           |   80.07 |    67.69 |   80.91 |   79.96 |
   Logger.js         |   63.63 |    56.25 |   36.84 |   62.79 | ...25,37-49,57,65-69,74,84,88,93,105 
 --------------------|---------|----------|---------|---------|--------------------------------------
 
-> secrez@2.1.10 posttest /Users/francescosullo/Projects/Secrez/secrez/packages/secrez
+> secrez@2.1.11-beta.0 posttest /Users/francescosullo/Projects/Secrez/secrez/packages/secrez
 > nyc check-coverage --statements 65 --branches 50 --functions 65 --lines 65
 
 
