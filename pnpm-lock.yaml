@@ -175,7 +175,7 @@ importers:
         specifier: workspace:~0.0.4
         version: link:../eth
       '@secrez/fs':
-        specifier: workspace:~1.0.6
+        specifier: workspace:~1.0.7
         version: link:../fs
       '@secrez/utils':
         specifier: workspace:~1.0.4
