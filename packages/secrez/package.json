@@ -1,6 +1,6 @@
 {
   "name": "secrez",
-  "version": "2.1.12-beta.0",
+  "version": "2.1.12-beta.1",
   "license": "MIT",
   "scripts": {
     "dev": "cross-env NODE_ENV=dev bin/secrez.js -c `pwd`/tmp/secrez-dev -i 1e3 -l `pwd`/tmp",
@@ -8,7 +8,7 @@
     "test": "cross-env NODE_ENV=test nyc --reporter=lcov --reporter=text mocha test/*.test.js test/**/*.test.js test/**/**/*.js --exit",
     "posttest": "nyc check-coverage --statements 65 --branches 50 --functions 65 --lines 65",
     "build-helpers": "cd test/helpers/os && ./build.sh",
-    "preinstall": "scripts/pre-install.sh"
+    "preinstall": "node scripts/preinstall.js"
   },
   "nyc": {
     "include": "src",
