@@ -96,34 +96,37 @@ const utils = {
   async execAsync(cmd, cwd, params) {
     return new Promise((resolve) => {
       let json = {};
-      try {
-        const { execSync } = require("child_process");
-        // Properly escape the command and arguments to avoid security warnings
-        const escapedParams = params.map((param) => {
-          // Escape single quotes and wrap in single quotes if needed
-          if (
-            param.includes(" ") ||
-            param.includes("'") ||
-            param.includes('"')
-          ) {
-            return `'${param.replace(/'/g, "'\"'\"'")}'`;
-          }
-          return param;
-        });
-        const fullCommand = `${cmd} ${escapedParams.join(" ")}`;
-        const result = execSync(fullCommand, {
-          cwd,
-          encoding: "utf8",
-          stdio: ["ignore", "pipe", "pipe"],
-        });
-        json.message = _.trim(result);
-        json.code = 0;
+      // Use spawn instead of execSync to avoid deprecation warnings
+      // spawn with shell:false (default) safely handles arguments without concatenation
+      const child = spawn(cmd, params, { cwd });
+
+      let stdout = "";
+      let stderr = "";
+
+      child.stdout.on("data", (data) => {
+        stdout += data.toString("utf8");
+      });
+
+      child.stderr.on("data", (data) => {
+        stderr += data.toString("utf8");
+      });
+
+      child.on("exit", (code) => {
+        if (code === 0) {
+          json.message = _.trim(stdout);
+          json.code = 0;
+        } else {
+          json.error = _.trim(stderr || stdout);
+          json.code = code;
+        }
         resolve(json);
-      } catch (error) {
-        json.error = _.trim(error.stderr?.toString() || error.message);
-        json.code = error.status || 1;
+      });
+
+      child.on("error", (error) => {
+        json.error = _.trim(error.message);
+        json.code = 1;
         resolve(json);
-      }
+      });
     });
   },
 

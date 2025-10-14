@@ -72,35 +72,6 @@ describe("#Alias", function () {
     assertConsole(inspect, ["f  ls dir"]);
   });
 
-  it.skip("should chain two commands", async function () {
-    // TODO Needs support for chained alias in PromptMock
-
-    let content = ["user: ciccio", "totp: sheurytwrefd"].join("\n");
-    let p = "/card.yml";
-    await noPrint(
-      C.touch.exec({
-        path: p,
-        content,
-      })
-    );
-
-    await noPrint(
-      C.alias.exec({
-        name: "c",
-        skipConfirm: true,
-        commandLine: "copy card.yml -f user --wait -d 0.2 && totp card.yml",
-      })
-    );
-
-    await prompt.run("c", C.alias.aliasManager);
-
-    await sleep(100);
-    assert.equal(await clipboardy.read(), "ciccio");
-
-    await sleep(200);
-    assert.isTrue(/^\d{6}$/.test(await clipboardy.read()));
-  });
-
   it("rename and delete aliases", async function () {
     await C.alias.exec({
       list: true,
