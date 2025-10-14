@@ -370,7 +370,7 @@ Secrez is not intended to compete with password managers, so do not expect it to
 
 **2.1.12**
 
-- enforce the usage of pnpm during global install. When that is not possible, for example with yarn, it blocks the execution asking the user to uninstall and install it again properly 
+- enforce the usage of pnpm during global install. When that is not possible, for example with yarn, it blocks the execution asking the user to uninstall and install it again properly
 
 **2.1.11**
 
@@ -499,6 +499,10 @@ Secrez is not intended to compete with password managers, so do not expect it to
 - use @secrez/core@1.0.0, which changes the encoding from base58 to base64, making the encoding much faster
 - remove second factor authentication due to potentially critical issues with Python and the required libraries on macOS (2FA will be restored as soon as either a pure Javascript library is available or using external Python libraries is reliable again)
 - `Bash` has been renamed `Shell`
+
+**0.11.0**
+
+- removed support for FIDO2 second factor authentication due to potential critical issues with Python and the required libraries on MacOS (2FA may be restored if a pure Javascript library becomes available)
 
 **0.10.8**
 
@@ -888,30 +892,29 @@ Thank you for any contributions! 😉
 ## Test coverage
 
 ```
-  162 passing (1m)
-  1 pending
+  162 passing (2m)
 
 --------------------|---------|----------|---------|---------|--------------------------------------
 File                | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                    
 --------------------|---------|----------|---------|---------|--------------------------------------
-All files           |   80.07 |    67.69 |   80.91 |   79.96 |                                      
+All files           |   81.62 |    68.94 |   83.57 |   81.53 |                                      
  src                |   57.62 |    53.75 |      55 |   58.11 |                                      
   Command.js        |   74.66 |    74.13 |   78.57 |   75.67 | ...5-62,73,80,93,127,164-172,179-182 
   PreCommand.js     |    8.82 |        0 |       0 |    8.82 | 6-97                                 
   cliConfig.js      |     100 |      100 |     100 |     100 |                                      
- src/commands       |   83.06 |    69.43 |   90.82 |   82.94 |                                      
+ src/commands       |   83.01 |    69.34 |   90.82 |   82.89 |                                      
   Alias.js          |    88.6 |    78.68 |     100 |   88.46 | 101,112,139,169,173,180,190,213-214  
   Bash.js           |      75 |        0 |   66.66 |      75 | 18-19                                
   Cat.js            |   98.91 |    88.88 |     100 |   98.91 | 152                                  
   Cd.js             |   96.42 |    86.66 |     100 |   96.42 | 44                                   
-  Conf.js           |    8.64 |        0 |      20 |    8.64 | 98-509                               
+  Conf.js           |    8.64 |        0 |      20 |    8.64 | 47-216                               
   Contacts.js       |   86.06 |     75.6 |     100 |   85.95 | ...5,165,172,184,237,250,260,268-269 
   Copy.js           |    91.2 |    71.92 |     100 |   91.11 | 115,166,183,205-210,225-226,253      
   Ds.js             |   90.27 |     82.6 |     100 |   90.14 | 99,108-113,125,147-148               
   Edit.js           |   12.94 |        0 |      40 |   12.94 | 88-222                               
   Export.js         |   90.17 |    76.92 |     100 |   90.17 | ...3-198,209,227-231,236,248,257,260 
   Find.js           |   93.58 |    86.66 |     100 |   93.42 | 101,164,200-203,209                  
-  Git.js            |   96.15 |       75 |     100 |   96.15 | 61                                   
+  Git.js            |    92.3 |    66.66 |     100 |    92.3 | 40,61                                
   Help.js           |     100 |       80 |     100 |     100 | 29                                   
   Import.js         |   92.41 |    85.38 |     100 |   92.34 | ...7,387,393,441,457-458,466-473,500 
   Lcat.js           |     100 |    85.71 |     100 |     100 | 54                                   
@@ -937,18 +940,12 @@ All files           |   80.07 |    67.69 |   80.91 |   79.96 |
   index.js          |    87.5 |       50 |     100 |   86.95 | 15,22,31                             
  src/prompts        |      75 |    33.33 |      50 |      75 |                                      
   MainPromptMock.js |      75 |    33.33 |      50 |      75 | 29-35,44                             
- src/utils          |   67.61 |     62.5 |   54.16 |   67.21 |                                      
+ src/utils          |   83.07 |    78.43 |   66.66 |   82.81 |                                      
   AliasManager.js   |     100 |    91.66 |     100 |     100 | 47                                   
   ContactManager.js |   73.33 |       60 |   85.71 |   73.33 | 12,34-36                             
-  Fido2Client.js    |    9.61 |        0 |       0 |    9.61 | 8-108                                
   HelpProto.js      |   89.07 |     82.6 |     100 |   88.88 | 49,135-137,153-154,171-176,195       
   Logger.js         |   63.63 |    56.25 |   36.84 |   62.79 | ...25,37-49,57,65-69,74,84,88,93,105 
 --------------------|---------|----------|---------|---------|--------------------------------------
-
-> secrez@2.1.11-beta.0 posttest /Users/francescosullo/Projects/Secrez/secrez/packages/secrez
-> nyc check-coverage --statements 65 --branches 50 --functions 65 --lines 65
-
-
 ```
 
 ## Copyright
