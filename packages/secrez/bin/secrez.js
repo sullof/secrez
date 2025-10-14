@@ -10,6 +10,49 @@ const pkg = require("../package");
 const MainPrompt = require("../src/prompts/MainPrompt");
 const Logger = require("../src/utils/Logger");
 
+// Check if the package was installed with pnpm
+const installPath = __dirname;
+if (installPath.indexOf("pnpm") === -1) {
+  console.error(
+    chalk.red.bold("\n⚠️  Installation Error\n")
+  );
+  console.error(
+    chalk.yellow(
+      "Secrez must be installed globally using pnpm.\n" +
+      "It appears this package was installed with a different package manager.\n"
+    )
+  );
+  console.error(
+    chalk.white("\nPlease follow these steps:\n")
+  );
+  console.error(
+    chalk.cyan(
+      "1. Uninstall secrez using the package manager you previously used:\n" +
+      "   - If you used npm:  " + chalk.bold("npm uninstall -g secrez") + "\n" +
+      "   - If you used yarn: " + chalk.bold("yarn global remove secrez") + "\n"
+    )
+  );
+  console.error(
+    chalk.cyan(
+      "2. Install pnpm globally if you haven't already:\n" +
+      "   " + chalk.bold("npm install -g pnpm") + "\n"
+    )
+  );
+  console.error(
+    chalk.cyan(
+      "3. Setup pnpm:\n" +
+      "   " + chalk.bold("pnpm setup") + "\n"
+    )
+  );
+  console.error(
+    chalk.cyan(
+      "4. Install secrez globally using pnpm:\n" +
+      "   " + chalk.bold("pnpm install -g secrez") + "\n"
+    )
+  );
+  process.exit(1);
+}
+
 const optionDefinitions = [
   {
     name: "help",

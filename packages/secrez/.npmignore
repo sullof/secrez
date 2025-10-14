@@ -1,6 +1,6 @@
 test
 .nyc_output
-coverage
+coverage*
 tmp
 .scratch
 .idea
