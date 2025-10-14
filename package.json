@@ -12,10 +12,10 @@
     "reset": "bin/clean-all-modules.sh && pnpm install",
     "check-unused": "bin/check-unused.sh",
     "format": "npx prettier --write .",
-    "README": "echo 'For new versions, run patch-versions, pre-push and push. Then publish to publish the new package.'",
+    "README": "echo 'For new versions, run patch-versions and pre-push before pushing to the repo. Then, in the main branch, run publish-all to publish the packages with new versions.'",
     "patch-versions": "node bin/patch-versions.js",
     "pre-push": "npm run format && node bin/pre-push.js",
-    "publish": "node bin/publish-changed-packages.js"
+    "publish-all": "node bin/publish-changed-packages.js"
   },
   "devDependencies": {
     "eslint": "^7.32.0",
