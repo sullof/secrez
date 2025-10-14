@@ -43,8 +43,6 @@ Secrez aims to provide a secure password management solution that is available e
 
 To achieve its goal, Secrez uses several strategies. First, any secret is a local file. Second, any file, whether it's a tree version, a directory, a text file, or a binary file, is immutable. Finally, any change can be pulled/pushed to a remote private repository. You can either create a private repository on GitHub, BitBucket, etc. or set up your own self-hosted Git server.
 
-In addition to functioning as a password manager, Secrez also includes an optional decentralized, surveillance-resistant, end-to-end encrypted messaging system. This provides an extra layer of security for your communications, ensuring that your messages cannot be intercepted or read by anyone other than the intended recipient.
-
 Overall, Secrez offers a powerful and secure solution for managing your passwords and secrets, all from the command line.
 
 ## The structure
@@ -369,6 +367,10 @@ Starting from version 0.8.0, Secrez allowed you to exchange encrypted messages w
 Secrez is not intended to compete with password managers, so do not expect it to have features like "form filling." The idea behind Secrez originated in 2017 when I was participating in many ICOs, and I had so many files to save, but any password manager I used was not very effective. Secrez is file-oriented and will likely remain so. However, it is open source, and someone is welcome to build a GUI or mobile app built on it.
 
 ## History
+
+**2.1.12**
+
+- enforce the usage of pnpm during global install. When that is not possible, for example with yarn, it blocks the execution asking the user to uninstall and install it again properly 
 
 **2.1.11**
 
