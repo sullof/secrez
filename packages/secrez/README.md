@@ -348,6 +348,10 @@ For security reasons, it is better to export from your password manager and impo
 
 However, if you need to edit the exported file to fix paths and names, it is more convenient to do it before importing the data, as it can take a lot more time to do so after the data is imported.
 
+## FIDO2 second factor authentication?
+
+It has been removed in version 0.11.0 due to potential critical issues with Python and the required libraries on MacOS (2FA may be restored if a pure Javascript library becomes available).
+
 ## (experimental) End-to-end encrypted communication with other accounts
 
 Starting from version 0.8.0, Secrez allowed you to exchange encrypted messages with other users. To do so, it was using the packages `@secrez/courier`, `@secrez/hub`, `@secrez/tls` and `@secrez/tunnel`. Those four packages have been removed in version 2.0.0 since the feature was hard to maintain and not very used.
