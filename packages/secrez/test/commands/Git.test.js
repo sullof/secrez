@@ -167,6 +167,74 @@ describe("#Git", function () {
     );
   });
 
+  it("should do nothing when --push is used with no changes", async function () {
+    this.timeout(15000);
+
+    if (!testRepoUrl) {
+      this.skip();
+    }
+
+    // Ensure pushes use the test SSH key
+    process.env.GIT_SSH_COMMAND = `ssh -i ${tempSshKeyPath} -o StrictHostKeyChecking=no`;
+
+    // Make sure there are no uncommitted changes before pushing
+    // Running status should be enough; we won't create any changes here
+
+    // Execute git --push
+    inspect = stdout.inspect();
+    await C2.git.exec({ push: true });
+    inspect.restore();
+    const output = inspect.output.map((e) => decolorize(e)).join("");
+
+    // Expect the command to report no changes
+    assert.match(output, /No changes in the repository/);
+  });
+
+  it("should push changes and update fingerprint when --push is used", async function () {
+    this.timeout(20000);
+
+    if (!testRepoUrl) {
+      this.skip();
+    }
+
+    // Ensure the SSH command is available to child processes invoked by the command
+    process.env.GIT_SSH_COMMAND = `ssh -i ${tempSshKeyPath} -o StrictHostKeyChecking=no`;
+
+    // Capture previous fingerprint
+    const beforeFingerprint =
+      prompt2.internalFs.gitConflictChecker.initialGitState;
+
+    // Make an uncommitted change using Secrez itself (creating a new entry)
+    await noPrint(
+      C2.touch.exec({
+        path: `/push-test-${Date.now()}`,
+      })
+    );
+
+    // Run the push via Secrez command
+    inspect = stdout.inspect();
+    await C2.git.exec({ push: true });
+    inspect.restore();
+    let output = inspect.output.map((e) => decolorize(e)).join("");
+
+    // Should confirm push and fingerprint update
+    assert.match(output, /Pushed successfully\. Fingerprint updated\./);
+
+    // Verify fingerprint updated to current HEAD
+    const status = await prompt2.internalFs.gitConflictChecker.getGitStatus();
+    const afterFingerprint =
+      prompt2.internalFs.gitConflictChecker.initialGitState;
+
+    assert.isNotNull(afterFingerprint);
+    assert.equal(afterFingerprint.headCommit, status.headCommit);
+    if (beforeFingerprint && beforeFingerprint.headCommit) {
+      assert.notEqual(
+        afterFingerprint.headCommit,
+        beforeFingerprint.headCommit
+      );
+    }
+  });
+
   it("should handle non-git repository", async function () {
     this.timeout(10000);
 
