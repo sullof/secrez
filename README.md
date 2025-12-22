@@ -368,6 +368,10 @@ Secrez is not intended to compete with password managers, so do not expect it to
 
 ## History
 
+**2.1.15**
+
+- add `find -R` to look for recent entries only. With `-l` to set a limit (default 10)
+
 **2.1.14**
 
 - reverse changes done in version 2.1.12
