@@ -300,20 +300,6 @@ describe("#Find", function () {
     output = inspect.output.map((e) => decolorize(e));
     assertConsole(inspect, ["3 results found:"]);
 
-    // Test with keyword filtering
-    inspect = stdout.inspect();
-    await C.find.exec({
-      recent: true,
-      keywords: "recent",
-      limit: 5,
-    });
-    inspect.restore();
-    output = inspect.output.map((e) => decolorize(e));
-    assert.isTrue(output[0].includes("result"));
-    // Should find entries matching "recent"
-    let hasRecent = output.some((line) => /recent/.test(line));
-    assert.isTrue(hasRecent);
-
     // Verify results are sorted by most recent first
     // Get raw results to check timestamps
     let results = await C.find.find({

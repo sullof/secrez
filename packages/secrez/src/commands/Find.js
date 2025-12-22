@@ -98,10 +98,6 @@ class Find extends require("../Command") {
         ["find archive:allet", "Search allet in the archive dataset"],
         ["find -R", "Show the 10 most recent changes"],
         ["find -R -l 20", "Show the 20 most recent changes"],
-        [
-          "find -R keyword",
-          "Show the 10 most recent entries matching 'keyword'",
-        ],
       ],
     };
   }
@@ -109,14 +105,13 @@ class Find extends require("../Command") {
   async find(options) {
     // Handle recent mode
     if (options.recent) {
-      // Set default limit if not specified
-      if (!options.limit) {
+      // Set default limit if not specified by user
+      if (options.limit === undefined) {
         options.limit = 10;
       }
-      // Keywords are optional in recent mode
-      if (!options.name && options.keywords) {
-        options.name = options.keywords;
-      }
+      // In recent mode, ignore keywords completely - just show the N most recent entries
+      options.name = undefined;
+      options.keywords = undefined;
 
       if (options.global) {
         let datasetInfo = await this.internalFs.getDatasetsInfo();
@@ -153,9 +148,7 @@ class Find extends require("../Command") {
           return result;
         });
       } else {
-        let data = await this.internalFs.getTreeIndexAndPath(
-          options.name || "."
-        );
+        let data = await this.internalFs.getTreeIndexAndPath(".");
         if (data.name) {
           options.dataset = data.name;
         }
@@ -219,7 +212,7 @@ class Find extends require("../Command") {
     });
 
     // Limit results
-    if (options.limit && rawResults.length > options.limit) {
+    if (rawResults.length > options.limit) {
       rawResults = rawResults.slice(0, options.limit);
     }
 
@@ -241,10 +234,9 @@ class Find extends require("../Command") {
   async _findRecentRaw(options) {
     let start = options.tree[options.root ? "root" : "workingNode"];
     let results = [];
-    let re = options.name ? Node.getFindRe(options) : null;
 
-    // Recursively collect all entries with their timestamps
-    await this._collectRecentEntries(start, results, options, re);
+    // Recursively collect all entries with their timestamps (no keyword filtering in recent mode)
+    await this._collectRecentEntries(start, results, options, null);
 
     // Add dataset info to results for global mode
     if (options.dataset) {
@@ -394,9 +386,8 @@ class Find extends require("../Command") {
     }
     try {
       this.validate(options);
-      // In recent mode, keywords are optional
+      // In recent mode, keywords are ignored - just show recent entries
       if (options.recent) {
-        options.name = options.keywords;
         try {
           this.lastResult = await this.find(options);
           let list = this.formatList(this.lastResult, options);
