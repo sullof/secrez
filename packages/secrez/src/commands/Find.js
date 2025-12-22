@@ -1,5 +1,6 @@
 const chalk = require("chalk");
 const { Node } = require("@secrez/fs");
+const { config } = require("@secrez/core");
 
 class Find extends require("../Command") {
   setHelpAndCompletion() {
@@ -56,6 +57,18 @@ class Find extends require("../Command") {
         type: Boolean,
         hint: "If global, search also in trash",
       },
+      {
+        name: "recent",
+        alias: "R",
+        type: Boolean,
+        hint: "Search for recent changes",
+      },
+      {
+        name: "limit",
+        alias: "l",
+        type: Number,
+        hint: "Limit the number of results (default: 10 when recent is enabled)",
+      },
     ];
   }
 
@@ -83,11 +96,75 @@ class Find extends require("../Command") {
           "Search scanning all the versions in all the datasets",
         ],
         ["find archive:allet", "Search allet in the archive dataset"],
+        ["find -R", "Show the 10 most recent changes"],
+        ["find -R -l 20", "Show the 20 most recent changes"],
+        [
+          "find -R keyword",
+          "Show the 10 most recent entries matching 'keyword'",
+        ],
       ],
     };
   }
 
   async find(options) {
+    // Handle recent mode
+    if (options.recent) {
+      // Set default limit if not specified
+      if (!options.limit) {
+        options.limit = 10;
+      }
+      // Keywords are optional in recent mode
+      if (!options.name && options.keywords) {
+        options.name = options.keywords;
+      }
+
+      if (options.global) {
+        let datasetInfo = await this.internalFs.getDatasetsInfo();
+        let allResults = [];
+        for (let dataset of datasetInfo) {
+          if (options.global && !options.trashToo && dataset.index === 1) {
+            continue;
+          }
+          await this.internalFs.mountTree(dataset.index);
+          options.tree = this.internalFs.trees[dataset.index];
+          options.dataset = dataset.name;
+          // Collect raw results (with ts property) for sorting across datasets
+          let rawResults = await this._findRecentRaw(options);
+          allResults = allResults.concat(rawResults);
+        }
+        // Sort all results together by timestamp and limit
+        allResults.sort((a, b) => {
+          return Node.sortEntry(a.ts, b.ts);
+        });
+        if (allResults.length > options.limit) {
+          allResults = allResults.slice(0, options.limit);
+        }
+        // Format results
+        return allResults.map((e) => {
+          let result = [
+            Node.hashVersion(e.ts),
+            e.path + (e.isDir ? "/" : ""),
+            e.name,
+            undefined,
+          ];
+          if (e.dataset) {
+            result[1] = e.dataset + ":" + result[1];
+          }
+          return result;
+        });
+      } else {
+        let data = await this.internalFs.getTreeIndexAndPath(
+          options.name || "."
+        );
+        if (data.name) {
+          options.dataset = data.name;
+        }
+        options.tree = data.tree;
+        return await this._findRecent(options);
+      }
+    }
+
+    // Regular find mode
     if (!options.name && options.keywords) {
       options.name = options.keywords;
     }
@@ -133,6 +210,133 @@ class Find extends require("../Command") {
     });
   }
 
+  async _findRecent(options) {
+    let rawResults = await this._findRecentRaw(options);
+
+    // Sort by timestamp (most recent first) and limit
+    rawResults.sort((a, b) => {
+      return Node.sortEntry(a.ts, b.ts);
+    });
+
+    // Limit results
+    if (options.limit && rawResults.length > options.limit) {
+      rawResults = rawResults.slice(0, options.limit);
+    }
+
+    // Format results to match regular find output
+    return rawResults.map((e) => {
+      let result = [
+        Node.hashVersion(e.ts),
+        e.path + (e.isDir ? "/" : ""),
+        e.name,
+        undefined,
+      ];
+      if (options.dataset) {
+        result[1] = options.dataset + ":" + result[1];
+      }
+      return result;
+    });
+  }
+
+  async _findRecentRaw(options) {
+    let start = options.tree[options.root ? "root" : "workingNode"];
+    let results = [];
+    let re = options.name ? Node.getFindRe(options) : null;
+
+    // Recursively collect all entries with their timestamps
+    await this._collectRecentEntries(start, results, options, re);
+
+    // Add dataset info to results for global mode
+    if (options.dataset) {
+      results = results.map((e) => {
+        e.dataset = options.dataset;
+        return e;
+      });
+    }
+
+    return results;
+  }
+
+  async _collectRecentEntries(node, results, options, re) {
+    // Skip root node
+    if (Node.isRoot(node)) {
+      // Process children
+      if (node.children) {
+        for (let id in node.children) {
+          await this._collectRecentEntries(
+            node.children[id],
+            results,
+            options,
+            re
+          );
+        }
+      }
+      return;
+    }
+
+    // Process current node if it has versions
+    if (node.versions && node.lastTs) {
+      let name = node.getName();
+      let path = node.getPath();
+      let isDir = Node.isDir(node);
+
+      // Filter by keywords if provided
+      if (re) {
+        if (re.test(name)) {
+          results.push({
+            ts: node.lastTs,
+            name: name,
+            path: path,
+            isDir: isDir,
+          });
+        } else if (
+          options.content &&
+          Node.isFile(node) &&
+          node.type === config.types.TEXT &&
+          options.tree
+        ) {
+          // Check content if content option is enabled
+          try {
+            let { content } = await options.tree.getEntryDetails(
+              node,
+              node.lastTs
+            );
+            if (re.test(content || "")) {
+              results.push({
+                ts: node.lastTs,
+                name: name,
+                path: path,
+                isDir: isDir,
+              });
+            }
+          } catch (e) {
+            // Ignore errors when reading content
+          }
+        }
+      } else {
+        // No keyword filter, include all entries
+        results.push({
+          ts: node.lastTs,
+          name: name,
+          path: path,
+          isDir: isDir,
+        });
+      }
+    }
+
+    // Process children
+    if (node.children) {
+      for (let id in node.children) {
+        await this._collectRecentEntries(
+          node.children[id],
+          results,
+          options,
+          re
+        );
+      }
+    }
+  }
+
   formatResult(result, re) {
     if (re.test(result)) {
       return result.replace(re, (a) => chalk.bold(a));
@@ -146,7 +350,7 @@ class Find extends require("../Command") {
   }
 
   formatList(list, options) {
-    let re = Node.getFindRe(options);
+    let re = options.name ? Node.getFindRe(options) : null;
     let i = 0;
     const setCache = (i, e) => {
       this.prompt.setCache("findResult", i, e);
@@ -159,7 +363,7 @@ class Find extends require("../Command") {
         let l = p.length;
         let c = p[l - 1] ? p[l - 1] : p[l - 2];
         if (e[2] && e[2] !== c) {
-          e[2] = this.formatResult(e[2], re, options.name);
+          e[2] = re ? this.formatResult(e[2], re, options.name) : e[2];
         } else {
           e[2] = undefined;
         }
@@ -169,13 +373,17 @@ class Find extends require("../Command") {
           "  ",
           chalk.yellow(e[0]),
           "  ",
-          this.formatResult(e[1], re, options.name),
+          re ? this.formatResult(e[1], re, options.name) : e[1],
           "  ",
           e[2],
         ].join("");
       } else {
         setCache(i, e);
-        return [k, "  ", this.formatResult(e[1], re, options.name)].join("");
+        return [
+          k,
+          "  ",
+          re ? this.formatResult(e[1], re, options.name) : e[1],
+        ].join("");
       }
     });
   }
@@ -186,8 +394,9 @@ class Find extends require("../Command") {
     }
     try {
       this.validate(options);
-      options.name = options.keywords;
-      if (options.name) {
+      // In recent mode, keywords are optional
+      if (options.recent) {
+        options.name = options.keywords;
         try {
           this.lastResult = await this.find(options);
           let list = this.formatList(this.lastResult, options);
@@ -203,7 +412,26 @@ class Find extends require("../Command") {
           this.Logger.red(e.message);
         }
       } else {
-        this.Logger.grey("Missing parameters");
+        // Regular find mode requires keywords
+        options.name = options.keywords;
+        if (options.name) {
+          try {
+            this.lastResult = await this.find(options);
+            let list = this.formatList(this.lastResult, options);
+            if (list && list.length) {
+              this.Logger.grey(
+                `${list.length} result${list.length > 1 ? "s" : ""} found:`
+              );
+              for (let l of list) this.Logger.reset(l);
+            } else {
+              this.Logger.grey("No results.");
+            }
+          } catch (e) {
+            this.Logger.red(e.message);
+          }
+        } else {
+          this.Logger.grey("Missing parameters");
+        }
       }
     } catch (e) {
       this.Logger.red(e.message);
