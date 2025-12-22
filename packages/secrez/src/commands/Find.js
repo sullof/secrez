@@ -1,6 +1,7 @@
 const chalk = require("chalk");
 const { Node } = require("@secrez/fs");
 const { config } = require("@secrez/core");
+const Crypto = require("@secrez/crypto");
 
 class Find extends require("../Command") {
   setHelpAndCompletion() {
@@ -142,6 +143,8 @@ class Find extends require("../Command") {
             e.name,
             undefined,
           ];
+          // Store timestamp for date formatting in recent mode
+          result.ts = e.ts;
           if (e.dataset) {
             result[1] = e.dataset + ":" + result[1];
           }
@@ -149,9 +152,8 @@ class Find extends require("../Command") {
         });
       } else {
         let data = await this.internalFs.getTreeIndexAndPath(".");
-        if (data.name) {
-          options.dataset = data.name;
-        }
+        // Don't set dataset for non-global search (matches regular find behavior)
+        // Dataset prefix is only shown when searching globally
         options.tree = data.tree;
         return await this._findRecent(options);
       }
@@ -224,6 +226,9 @@ class Find extends require("../Command") {
         e.name,
         undefined,
       ];
+      // Store timestamp for date formatting in recent mode
+      result.ts = e.ts;
+      // Only add dataset prefix if dataset is set (which happens in global mode)
       if (options.dataset) {
         result[1] = options.dataset + ":" + result[1];
       }
@@ -330,11 +335,17 @@ class Find extends require("../Command") {
   }
 
   formatResult(result, re) {
-    if (re.test(result)) {
+    if (re && re.test(result)) {
       return result.replace(re, (a) => chalk.bold(a));
     } else {
       return result;
     }
+  }
+
+  formatDate(ts) {
+    let dateArray = Crypto.fromTsToDate(ts);
+    let date = dateArray[0].split("Z")[0].split("T")[0]; // Get YYYY-MM-DD format
+    return chalk.cyan(date);
   }
 
   formatIndex(len, i) {
@@ -371,11 +382,23 @@ class Find extends require("../Command") {
         ].join("");
       } else {
         setCache(i, e);
-        return [
-          k,
-          "  ",
-          re ? this.formatResult(e[1], re, options.name) : e[1],
-        ].join("");
+        // In recent mode, show date before the path
+        if (options.recent && e.ts) {
+          let dateStr = this.formatDate(e.ts);
+          return [
+            k,
+            "  ",
+            dateStr,
+            "  ",
+            re ? this.formatResult(e[1], re, options.name) : e[1],
+          ].join("");
+        } else {
+          return [
+            k,
+            "  ",
+            re ? this.formatResult(e[1], re, options.name) : e[1],
+          ].join("");
+        }
       }
     });
   }
