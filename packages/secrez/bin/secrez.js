@@ -12,7 +12,7 @@ const Logger = require("../src/utils/Logger");
 
 // Check if the package was installed with pnpm
 const installPath = __dirname;
-if (installPath.indexOf("pnpm") === -1) {
+if (process.env.NODE_ENV !== "dev" && installPath.indexOf("pnpm") === -1) {
   console.error(
     chalk.red.bold("\n⚠️  Installation Error\n")
   );
