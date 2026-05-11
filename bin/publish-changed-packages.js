@@ -1,6 +1,9 @@
 const { execSync } = require("child_process");
+const fs = require("fs");
+const path = require("path");
 
 let changes;
+const publishCommands = [];
 
 let gitDiff = execSync("git diff --name-only").toString().split("\n");
 
@@ -19,18 +22,11 @@ function checkIfMustBePublished(dir) {
     .split("\n")[0]
     .split(" ")[1];
   if (version !== currVersion) {
-    console.debug(`
-MUST PUBLISH ${pkg}${dir} v${version} with
-
-(cd packages/${dir} && pnpm publish)
-`);
-    console.debug(
-      execSync(
-        `cd packages/${dir} && pnpm publish ${
-          /beta/.test(version) ? "--tag beta" : ""
-        }`
-      ).toString()
-    );
+    console.log(`📦 MUST PUBLISH ${pkg}${dir} v${version}`);
+    const publishCommand = `(cd packages/${dir} && pnpm publish ${
+      /beta/.test(version) ? "--tag beta" : ""
+    })`;
+    publishCommands.push(publishCommand);
     changes = true;
   }
 }
@@ -46,5 +42,35 @@ checkIfMustBePublished("fs", "@secrez");
 checkIfMustBePublished("secrez");
 
 if (!changes) {
-  console.debug("No upgrade needed.");
+  console.log("✅ No packages need to be published.");
+} else {
+  // Generate shell script
+  const scriptPath = path.resolve(__dirname, "../tmp/publish-packages.sh");
+  const scriptContent = `#!/bin/bash
+
+# Auto-generated publish script for Secrez packages
+# This script will publish packages that need to be updated
+# You'll be prompted for 2FA for each package
+
+set -e
+
+echo "🚀 Starting package publishing..."
+
+${publishCommands.join("\n\n")}
+
+echo "✅ All packages published successfully!"
+`;
+
+  fs.writeFileSync(scriptPath, scriptContent);
+  fs.chmodSync(scriptPath, "755");
+
+  console.log(`
+🎯 Packages need to be published! A shell script has been generated at:
+   ${scriptPath}
+
+📋 To publish all packages, run:
+   ${scriptPath}
+
+⚠️  Note: You'll be prompted for 2FA authentication for each package.
+`);
 }

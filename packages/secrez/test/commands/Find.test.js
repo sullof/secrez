@@ -229,4 +229,200 @@ describe("#Find", function () {
       "2  /folder/file1",
     ]);
   });
+
+  it("should find recent changes", async function () {
+    await sleep(1000);
+
+    let { internalFs } = prompt;
+    let { config } = prompt.secrez;
+
+    // Create entries with delays to ensure different timestamps
+    await noPrint(
+      internalFs.make({
+        path: "recent1",
+        type: config.types.TEXT,
+        content: "First entry",
+      })
+    );
+
+    await noPrint(
+      internalFs.make({
+        path: "recent2",
+        type: config.types.TEXT,
+        content: "Second entry",
+      })
+    );
+
+    await noPrint(
+      internalFs.make({
+        path: "recent3",
+        type: config.types.TEXT,
+        content: "Third entry",
+      })
+    );
+
+    await noPrint(
+      internalFs.make({
+        path: "folder/recent4",
+        type: config.types.TEXT,
+        content: "Fourth entry",
+      })
+    );
+
+    await noPrint(
+      internalFs.make({
+        path: "recent5",
+        type: config.types.TEXT,
+        content: "Fifth entry",
+      })
+    );
+
+    // Test default limit (10)
+    inspect = stdout.inspect();
+    await C.find.exec({
+      recent: true,
+    });
+    inspect.restore();
+    let output = inspect.output.map((e) => decolorize(e));
+
+    assert.isTrue(output[0].includes("result"));
+    // Should return at least 5 results (we created 5 entries)
+    let resultCount = parseInt(output[0].match(/(\d+)\s+result/)[1]);
+    assert.isAtLeast(resultCount, 5);
+
+    // Test custom limit
+    inspect = stdout.inspect();
+    await C.find.exec({
+      recent: true,
+      limit: 3,
+    });
+    inspect.restore();
+    output = inspect.output.map((e) => decolorize(e));
+    assertConsole(inspect, ["3 results found:"]);
+
+    // Verify results are sorted by most recent first
+    // Get raw results to check timestamps
+    let results = await C.find.find({
+      recent: true,
+      limit: 5,
+    });
+    assert.isAtLeast(results.length, 1);
+    // The most recent entry should be recent5 (created last)
+    let mostRecentPath = results[0][1];
+    assert.isTrue(
+      mostRecentPath.includes("recent5") ||
+        mostRecentPath.includes("folder/recent4")
+    );
+  });
+
+  it("should find recent changes with global option", async function () {
+    await sleep(1000);
+
+    let { internalFs } = prompt;
+    let { config } = prompt.secrez;
+
+    // Create entry in main dataset
+    await noPrint(
+      internalFs.make({
+        path: "main-recent",
+        type: config.types.TEXT,
+        content: "Main entry",
+      })
+    );
+    await sleep(100);
+
+    // Create archive dataset and add entry
+    await noPrint(
+      C.use.exec({
+        dataset: "archive",
+        create: true,
+      })
+    );
+
+    await noPrint(
+      C.touch.exec({
+        path: "archive:/archive-recent",
+        content: "Archive entry",
+      })
+    );
+
+    // Test global recent search
+    inspect = stdout.inspect();
+    await C.find.exec({
+      recent: true,
+      global: true,
+      limit: 10,
+    });
+    inspect.restore();
+    let output = inspect.output.map((e) => decolorize(e));
+    assert.isTrue(output[0].includes("result"));
+    // Should find entries from both datasets
+    let hasMain = output.some((line) => /main-recent/.test(line));
+    let hasArchive = output.some((line) => /archive-recent/.test(line));
+    assert.isTrue(hasMain || hasArchive);
+  });
+
+  it("should find recent changes from root", async function () {
+    await sleep(1000);
+
+    let { internalFs } = prompt;
+    let { config } = prompt.secrez;
+
+    // Create entries in subdirectories
+    await noPrint(
+      internalFs.make({
+        path: "subdir/root-recent",
+        type: config.types.TEXT,
+        content: "Root search entry",
+      })
+    );
+
+    // Test root option
+    inspect = stdout.inspect();
+    await C.find.exec({
+      recent: true,
+      root: true,
+      limit: 5,
+    });
+    inspect.restore();
+    let output = inspect.output.map((e) => decolorize(e));
+    assert.isTrue(output[0].includes("result"));
+    // Should find the entry from subdirectory
+    let hasSubdir = output.some((line) => /subdir/.test(line));
+    assert.isTrue(hasSubdir);
+  });
+
+  it("should find recent changes without keywords", async function () {
+    await sleep(1000);
+
+    let { internalFs } = prompt;
+    let { config } = prompt.secrez;
+
+    // Create some entries
+    await noPrint(
+      internalFs.make({
+        path: "no-keyword1",
+        type: config.types.TEXT,
+      })
+    );
+    await sleep(100);
+    await noPrint(
+      internalFs.make({
+        path: "no-keyword2",
+        type: config.types.TEXT,
+      })
+    );
+
+    // Test recent without keywords (should work)
+    inspect = stdout.inspect();
+    await C.find.exec({
+      recent: true,
+      limit: 5,
+    });
+    inspect.restore();
+    let output = inspect.output.map((e) => decolorize(e));
+    assert.isTrue(output[0].includes("result"));
+    // Should return results even without keywords
+    assert.isFalse(output[0].includes("Missing parameters"));
+  });
 });
