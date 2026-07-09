@@ -106,6 +106,7 @@ describe("#Import", function () {
         path: "content.txt",
         encrypt: true,
         password,
+        iterations,
       })
     );
 
@@ -119,6 +120,7 @@ describe("#Import", function () {
     await C.import.exec({
       path: "content.txt.secrez",
       password,
+      iterations,
     });
     inspect.restore();
     assertConsole(inspect, ["Imported files:", "/content.txt"]);
@@ -126,6 +128,39 @@ describe("#Import", function () {
     inspect = stdout.inspect();
     await C.cat.exec({
       path: "/content.txt",
+    });
+    inspect.restore();
+    assertConsole(inspect, [content]);
+  });
+
+  it("should import a v1 password-encrypted file", async function () {
+    const content = "legacy v1 content";
+    const exportPassword = "legacy-password";
+    const { writeV1EncryptedFile } = require("@secrez/test-helpers");
+
+    await noPrint(
+      C.lcd.exec({
+        path: testDir,
+      })
+    );
+
+    await writeV1EncryptedFile(
+      path.join(testDir, "legacy.txt.secrez"),
+      content,
+      exportPassword
+    );
+
+    inspect = stdout.inspect();
+    await C.import.exec({
+      path: "legacy.txt.secrez",
+      password: exportPassword,
+    });
+    inspect.restore();
+    assertConsole(inspect, ["Imported files:", "/legacy.txt"]);
+
+    inspect = stdout.inspect();
+    await C.cat.exec({
+      path: "/legacy.txt",
     });
     inspect.restore();
     assertConsole(inspect, [content]);

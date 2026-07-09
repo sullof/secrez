@@ -58,6 +58,11 @@ class Export extends require("../Command") {
         type: String,
       },
       {
+        name: "iterations",
+        alias: "i",
+        type: Number,
+      },
+      {
         name: "include-me",
         type: Boolean,
       },
@@ -96,8 +101,8 @@ class Export extends require("../Command") {
           'asks for a password and encrypts seed.json before exporting it. The final file will have the extension ".secrez"',
         ],
         [
-          'export seed.json -e --password "some strong password"',
-          "uses the typed password to encrypt seed.json before exporting it",
+          'export seed.json -e --password "some strong password" -i 500000',
+          "uses the typed password and iterations to encrypt seed.json before exporting it",
         ],
         [
           "export seed.json -ec bob alice",
@@ -260,6 +265,23 @@ class Export extends require("../Command") {
             throw new Error("The two password do not match");
           }
           options.password = pwd;
+          if (!options.iterations) {
+            let iterationsInput = await this.useInput({
+              message:
+                "Type the number of iterations for encrypting this export",
+              validate: (val) => {
+                const n = parseInt(val, 10);
+                return (
+                  (n > 0 && String(n) === String(val).trim()) ||
+                  "Must be a positive integer"
+                );
+              },
+            });
+            if (!iterationsInput) {
+              throw new Error("Operation canceled");
+            }
+            options.iterations = parseInt(iterationsInput, 10);
+          }
         }
         content = fileCipher.encryptFile(content, options).join(",");
       }

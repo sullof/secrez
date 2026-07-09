@@ -197,6 +197,32 @@ This command will encrypt the file myWallet.json located on your Desktop, save i
 
 This is particularly useful if you have just downloaded a private key to access your crypto wallet and want to encrypt it as soon as possible. With Secrez, you can import the file and delete the cleartext version in one command.
 
+### Exporting and importing encrypted files
+
+You can export a file encrypted for use outside Secrez with:
+
+```
+export mySecret.yml -e
+```
+
+Secrez asks for a password and the number of PBKDF2 iterations. The exported file gets a `.secrez` extension (or `.secrezb` for binary files). Starting from version 2.2.0, password-based exports use format **v2**: a random salt is stored in the file, while the password and iteration count stay out of band (you must remember both to decrypt later).
+
+To import a v2 file:
+
+```
+import mySecret.yml.secrez --password "your export password" -i 500000
+```
+
+Use the same iteration count you chose at export time (`-i` on the command line, or Secrez will prompt you).
+
+Files exported with older versions used format **v1** (weaker key derivation). You can still import them with the password only:
+
+```
+import old-backup.secrez --password "your export password"
+```
+
+Exports encrypted for contacts or for yourself inside Secrez (shared keys) are unchanged and do not require a password or iterations at import time.
+
 ## Aliases — where the fun begins :-)
 
 Suppose you have a bank card and want to log in to your online account. You could copy the email and password to the clipboard to paste them in the browser. If you expect to be able to move from the terminal to the browser in 4 seconds, you could run the command:
@@ -374,6 +400,7 @@ Secrez is not intended to compete with password managers, so do not expect it to
 - harden `ssh` command: validate user and host, pass arguments to `ttab`/`ssh` without shell interpolation (fixes command injection via crafted hostnames)
 - replace external editor with an in-memory editor for `edit`: secrets are no longer written to temporary files on disk; removed `-e`/`--editor` and `-i`/`--internal` options (the internal editor is now the only editor)
 - add `editorProvider` hook for tests and improve `edit` command test reliability
+- strengthen password-based export encryption (`.secrez` files): new **v2** format uses PBKDF2 with a random salt stored in the file; password and iteration count are required at import (`-i`); legacy **v1** exports remain importable with password only
 
 **2.1.16**
 
