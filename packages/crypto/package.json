@@ -1,6 +1,6 @@
 {
   "name": "@secrez/crypto",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -19,7 +19,7 @@
     "tweetnacl": "^1.0.3"
   },
   "devDependencies": {
-    "@secrez/utils": "workspace:~1.0.5",
+    "@secrez/utils": "workspace:~1.0.6",
     "chai": "^4.5.0",
     "cross-env": "^7.0.3",
     "mocha": "^7.2.0",

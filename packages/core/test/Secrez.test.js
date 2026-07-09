@@ -149,6 +149,17 @@ describe("#Secrez", function () {
         assert.equal(masterKeyHash, secrez.masterKeyHash);
       });
 
+      it("should clear secrets from memory on signout", async function () {
+        await secrez.init(rootDir);
+        await secrez.signup(password, iterations);
+        const encrypted = secrez.encryptData("some secret");
+        secrez.signout();
+        assert.isUndefined(secrez.masterKeyHash);
+        assert.throws(() => secrez.encryptData("x"), /User not logged/);
+        await secrez.signin(password, iterations);
+        assert.equal(secrez.decryptData(encrypted), "some secret");
+      });
+
       describe("should throw an error", async function () {
         it("trying to signup if Secrez has not been initiated", async function () {
           try {

@@ -1,3 +1,5 @@
+const chai = require("chai");
+const assert = chai.assert;
 const stdout = require("test-console").stdout;
 const fs = require("fs-extra");
 const path = require("path");
@@ -30,5 +32,13 @@ describe("#Quit", function () {
     await C.quit.exec({});
     inspect.restore();
     assertConsole(inspect, "Bye bye :o)");
+  });
+
+  it("should sign out before quitting", async function () {
+    inspect = stdout.inspect();
+    await C.quit.exec({});
+    inspect.restore();
+    assert.isUndefined(prompt.secrez.masterKeyHash);
+    assert.throws(() => prompt.secrez.encryptData("x"), /User not logged/);
   });
 });

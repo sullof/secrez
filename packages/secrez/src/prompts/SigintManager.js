@@ -18,6 +18,10 @@ class SigintManager {
   async onSigint() {
     this.siginted = true;
     if (Date.now() - this.lastCalled < 500) {
+      const prompt = this.prompts.find((p) => p.secrez);
+      if (prompt?.secrez?.masterKeyHash) {
+        prompt.secrez.signout();
+      }
       // eslint-disable-next-line no-process-exit
       process.exit(0);
     }

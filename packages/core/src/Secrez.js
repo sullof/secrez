@@ -108,10 +108,12 @@ module.exports = function () {
     }
 
     getConf() {
+      this.assertLoggedIn();
       return _secrez.conf;
     }
 
     getPublicKey() {
+      this.assertLoggedIn();
       return (
         _secrez.conf.data.box.publicKey + "$" + _secrez.conf.data.sign.publicKey
       );
@@ -138,6 +140,7 @@ module.exports = function () {
     }
 
     signMessage(message) {
+      this.assertLoggedIn();
       return _secrez.signMessage(message);
     }
 
@@ -157,6 +160,12 @@ module.exports = function () {
       this.masterKeyHash = masterKeyHash;
     }
 
+    assertLoggedIn() {
+      if (!this.masterKeyHash) {
+        throw new Error("User not logged");
+      }
+    }
+
     preserveEntry(prev, next) {
       let options = prev.get();
       for (let o in options) {
@@ -168,26 +177,32 @@ module.exports = function () {
     }
 
     encryptData(data, urlSafe) {
+      this.assertLoggedIn();
       return _secrez.encrypt(data, urlSafe);
     }
 
     decryptData(encryptedData, urlSafe, returnUint8Array) {
+      this.assertLoggedIn();
       return _secrez.decrypt(encryptedData, urlSafe, returnUint8Array);
     }
 
     preEncryptData(data) {
+      this.assertLoggedIn();
       return _secrez.preEncrypt(data);
     }
 
     preDecryptData(encryptedData) {
+      this.assertLoggedIn();
       return _secrez.preDecrypt(encryptedData);
     }
 
     encryptSharedData(data, publicKey) {
+      this.assertLoggedIn();
       return _secrez.encryptShared(data, publicKey);
     }
 
     decryptSharedData(encryptedData, publicKey) {
+      this.assertLoggedIn();
       return _secrez.decryptShared(encryptedData, publicKey);
     }
 
@@ -198,64 +213,61 @@ module.exports = function () {
 
       const { type, name, content, preserveContent, id } = entry.get();
 
-      if (this.masterKeyHash) {
-        if (!ConfigUtils.isValidType(type)) {
-          throw new Error("Unsupported type");
-        }
-
-        let ts =
-          useTs && entry.ts
-            ? entry.ts
-            : Crypto.getTimestampWithMicroseconds().join(".");
-        let encryptedEntry = new Entry({
-          id,
-          type,
-          ts,
-        });
-        if (name) {
-          let encryptedName =
-            type +
-            _secrez.encrypt(
-              JSON.stringify({
-                i: id,
-                t: ts,
-                n: name,
-              }),
-              URL_SAFE
-            );
-          let extraName;
-          if (encryptedName.length > 255) {
-            extraName = encryptedName.substring(254);
-            encryptedName = encryptedName.substring(0, 254) + "$";
-          }
-
-          encryptedEntry.set({
-            encryptedName,
-            extraName,
-          });
-
-          if (preserveContent) {
-            encryptedEntry = this.preserveEntry(entry, encryptedEntry);
-          }
-        }
-        if (content) {
-          encryptedEntry.set({
-            encryptedContent: _secrez.encrypt(
-              JSON.stringify({
-                i: id,
-                t: ts,
-                c: content,
-              })
-            ),
-          });
-          if (preserveContent) {
-            encryptedEntry = this.preserveEntry(entry, encryptedEntry);
-          }
-        }
-        return encryptedEntry;
-      } else {
-        throw new Error("User not logged");
+      this.assertLoggedIn();
+      if (!ConfigUtils.isValidType(type)) {
+        throw new Error("Unsupported type");
       }
+
+      let ts =
+        useTs && entry.ts
+          ? entry.ts
+          : Crypto.getTimestampWithMicroseconds().join(".");
+      let encryptedEntry = new Entry({
+        id,
+        type,
+        ts,
+      });
+      if (name) {
+        let encryptedName =
+          type +
+          _secrez.encrypt(
+            JSON.stringify({
+              i: id,
+              t: ts,
+              n: name,
+            }),
+            URL_SAFE
+          );
+        let extraName;
+        if (encryptedName.length > 255) {
+          extraName = encryptedName.substring(254);
+          encryptedName = encryptedName.substring(0, 254) + "$";
+        }
+
+        encryptedEntry.set({
+          encryptedName,
+          extraName,
+        });
+
+        if (preserveContent) {
+          encryptedEntry = this.preserveEntry(entry, encryptedEntry);
+        }
+      }
+      if (content) {
+        encryptedEntry.set({
+          encryptedContent: _secrez.encrypt(
+            JSON.stringify({
+              i: id,
+              t: ts,
+              c: content,
+            })
+          ),
+        });
+        if (preserveContent) {
+          encryptedEntry = this.preserveEntry(entry, encryptedEntry);
+        }
+      }
+      return encryptedEntry;
     }
 
     decryptEntry(encryptedEntry, urlSafe) {
@@ -272,87 +284,79 @@ module.exports = function () {
         nameTs,
       } = encryptedEntry.get();
 
-      if (this.masterKeyHash) {
-        try {
-          if (encryptedName) {
-            let data = encryptedName;
-            if (extraName) {
-              data = encryptedName.substring(0, 254) + extraName;
-            }
-            let type = parseInt(data[0]);
-            let e = JSON.parse(_secrez.decrypt(data.substring(1), URL_SAFE));
-            let id = e.i;
-            let ts = e.t;
-            let name = e.n;
-            let content = "";
-
-            // during the indexing internalFS reads only the names of the files
-            if (encryptedContent) {
-              let e = JSON.parse(_secrez.decrypt(encryptedContent));
-              if (id !== e.i || ts !== e.t) {
-                throw new Error("Data is corrupted");
-              }
-              content = e.c;
-            }
-
-            let decryptedEntry = new Entry({
-              id,
-              type,
-              ts,
-              name,
-              content,
-            });
-
-            if (preserveContent) {
-              decryptedEntry = this.preserveEntry(
-                encryptedEntry,
-                decryptedEntry
-              );
-            }
-
-            return decryptedEntry;
+      this.assertLoggedIn();
+      try {
+        if (encryptedName) {
+          let data = encryptedName;
+          if (extraName) {
+            data = encryptedName.substring(0, 254) + extraName;
           }
+          let type = parseInt(data[0]);
+          let e = JSON.parse(_secrez.decrypt(data.substring(1), URL_SAFE));
+          let id = e.i;
+          let ts = e.t;
+          let name = e.n;
+          let content = "";
 
-          // when the encryptedName has been already decrypted and we need only the content
+          // during the indexing internalFS reads only the names of the files
           if (encryptedContent) {
             let e = JSON.parse(_secrez.decrypt(encryptedContent));
-
-            if ((nameId && e.i !== nameId) || (nameTs && e.t !== nameTs)) {
-              throw new Error("Content is corrupted");
+            if (id !== e.i || ts !== e.t) {
+              throw new Error("Data is corrupted");
             }
-
-            let decryptedEntry = new Entry({
-              id: e.i,
-              ts: e.i,
-              content: e.c,
-            });
-
-            if (preserveContent) {
-              decryptedEntry = this.preserveEntry(
-                encryptedEntry,
-                decryptedEntry
-              );
-            }
-
-            return decryptedEntry;
+            content = e.c;
           }
-        } catch (e) {
-          if (e.message === "Data is corrupted") {
-            throw e;
-          } else if (e.message === "Content is corrupted") {
-            throw e;
+
+          let decryptedEntry = new Entry({
+            id,
+            type,
+            ts,
+            name,
+            content,
+          });
+
+          if (preserveContent) {
+            decryptedEntry = this.preserveEntry(encryptedEntry, decryptedEntry);
           }
-          throw new Error("Fatal error during decryption");
+
+          return decryptedEntry;
         }
 
-        throw new Error("Missing parameters");
-      } else {
-        throw new Error("User not logged");
+        // when the encryptedName has been already decrypted and we need only the content
+        if (encryptedContent) {
+          let e = JSON.parse(_secrez.decrypt(encryptedContent));
+
+          if ((nameId && e.i !== nameId) || (nameTs && e.t !== nameTs)) {
+            throw new Error("Content is corrupted");
+          }
+
+          let decryptedEntry = new Entry({
+            id: e.i,
+            ts: e.i,
+            content: e.c,
+          });
+
+          if (preserveContent) {
+            decryptedEntry = this.preserveEntry(encryptedEntry, decryptedEntry);
+          }
+
+          return decryptedEntry;
+        }
+      } catch (e) {
+        if (e.message === "Data is corrupted") {
+          throw e;
+        } else if (e.message === "Content is corrupted") {
+          throw e;
+        }
+        throw new Error("Fatal error during decryption");
       }
+
+      throw new Error("Missing parameters");
     }
 
     signout() {
       if (this.masterKeyHash) {
+        _secrez.clearSecrets();
         delete this.masterKeyHash;
         _secrez = undefined;
       } else {

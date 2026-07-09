@@ -15,11 +15,11 @@
     "exclude": []
   },
   "dependencies": {
-    "@secrez/core": "workspace:~1.0.7",
-    "@secrez/crypto": "workspace:~1.0.6",
-    "@secrez/eth": "workspace:~0.0.5",
-    "@secrez/fs": "workspace:~1.0.8",
-    "@secrez/utils": "workspace:~1.0.5",
+    "@secrez/core": "workspace:~1.0.8",
+    "@secrez/crypto": "workspace:~1.0.7",
+    "@secrez/eth": "workspace:~0.0.6",
+    "@secrez/fs": "workspace:~1.0.9",
+    "@secrez/utils": "workspace:~1.0.6",
     "case": "^1.6.3",
     "chalk": "^3.0.0",
     "clipboardy": "^2.3.0",
