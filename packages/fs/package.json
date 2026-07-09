@@ -38,6 +38,6 @@
     "email": "francesco@sullo.co"
   },
   "engines": {
-    "node": ">=10.0.0"
+    "node": ">=20.0.0"
   }
 }
