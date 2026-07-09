@@ -1,10 +1,6 @@
 const _ = require("lodash");
 const { Entry } = require("@secrez/core");
-const {
-  isYaml,
-  yamlParse,
-  yamlStringify,
-} = require("@secrez/utils");
+const { isYaml, yamlParse, yamlStringify } = require("@secrez/utils");
 
 class Edit extends require("../Command") {
   setHelpAndCompletion() {

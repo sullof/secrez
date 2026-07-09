@@ -368,6 +368,13 @@ Secrez is not intended to compete with password managers, so do not expect it to
 
 ## History
 
+**2.2.0**
+
+- replace `shell` command implementation: run commands with `spawn` and `cwd` instead of interpolating the working directory into a shell string (fixes command injection via malicious paths)
+- harden `ssh` command: validate user and host, pass arguments to `ttab`/`ssh` without shell interpolation (fixes command injection via crafted hostnames)
+- replace external editor with an in-memory editor for `edit`: secrets are no longer written to temporary files on disk; removed `-e`/`--editor` and `-i`/`--internal` options (the internal editor is now the only editor)
+- add `editorProvider` hook for tests and improve `edit` command test reliability
+
 **2.1.16**
 
 - remove legacy second-factor handling from the CLI (`Welcome`, `Conf`)

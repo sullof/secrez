@@ -51,7 +51,7 @@ describe("#Shell", function () {
   it("should not interpret shell metacharacters in the working directory path", async function () {
     let trickyDir = path.resolve(
       __dirname,
-      "../../tmp/test/tricky; echo INJECTED",
+      "../../tmp/test/tricky; echo INJECTED"
     );
     await fs.ensureDir(trickyDir);
     await fs.writeFile(path.join(trickyDir, "marker"), "safe\n");

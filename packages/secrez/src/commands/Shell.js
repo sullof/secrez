@@ -18,7 +18,9 @@ function execShell(command, cwd) {
       if (code === 0) {
         resolve(stdout);
       } else {
-        reject(new Error(stderr.trim() || stdout.trim() || `Exit code ${code}`));
+        reject(
+          new Error(stderr.trim() || stdout.trim() || `Exit code ${code}`)
+        );
       }
     });
     child.on("error", reject);

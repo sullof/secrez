@@ -26,8 +26,7 @@ async function waitForClipboard(expected, options = {}) {
  */
 async function establishClipboardBaseline(options = {}) {
   const baseline =
-    options.baseline ??
-    `secrez-clipboard-${process.pid}-${Date.now()}\n`;
+    options.baseline ?? `secrez-clipboard-${process.pid}-${Date.now()}\n`;
 
   if (options.drainClipboardQueue) {
     await options.drainClipboardQueue();

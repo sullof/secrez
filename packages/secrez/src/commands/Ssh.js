@@ -108,7 +108,10 @@ class Ssh extends require("../Command") {
     let sshPath = path.join(this.secrez.config.tmpPath, ".ssh");
     if (!(await fs.pathExists(sshPath))) {
       await fs.ensureDir(sshPath);
-      await utils.execAsync("chmod", this.secrez.config.tmpPath, ["700", ".ssh"]);
+      await utils.execAsync("chmod", this.secrez.config.tmpPath, [
+        "700",
+        ".ssh",
+      ]);
     }
     let keyName = `id_${Math.random().toString().substring(2)}`;
     let keyPath = path.join(sshPath, keyName);

@@ -1,6 +1,6 @@
 {
   "name": "secrez",
-  "version": "2.1.16",
+  "version": "2.2.0",
   "license": "MIT",
   "scripts": {
     "dev": "cross-env NODE_ENV=dev bin/secrez.js -c `pwd`/tmp/secrez-dev -i 1e3 -l `pwd`/tmp",
@@ -36,7 +36,7 @@
     "qrcode-reader": "^1.0.4"
   },
   "devDependencies": {
-    "@secrez/test-helpers": "workspace:~2.0.2",
+    "@secrez/test-helpers": "workspace:~2.0.3",
     "chai": "^4.5.0",
     "chalk": "^3.0.0",
     "cross-env": "^7.0.3",

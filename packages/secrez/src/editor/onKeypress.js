@@ -65,10 +65,7 @@ function parseKey(s, enc) {
     key.shift = /^[A-Z]$/.test(parts[1]);
   } else if ((parts = functionKeyCodeRe.exec(s))) {
     const code =
-      (parts[1] || "") +
-      (parts[2] || "") +
-      (parts[4] || "") +
-      (parts[6] || "");
+      (parts[1] || "") + (parts[2] || "") + (parts[4] || "") + (parts[6] || "");
     const modifier = (parts[3] || parts[5] || 1) - 1;
     key.ctrl = !!(modifier & 4);
     key.meta = !!(modifier & 10);

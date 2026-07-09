@@ -86,7 +86,8 @@ describe("#Ssh", function () {
     await noPrint(
       C.touch.exec({
         path: "/.ssh/id_test",
-        content: "-----BEGIN OPENSSH PRIVATE KEY-----\nfake\n-----END OPENSSH PRIVATE KEY-----\n",
+        content:
+          "-----BEGIN OPENSSH PRIVATE KEY-----\nfake\n-----END OPENSSH PRIVATE KEY-----\n",
       })
     );
 
