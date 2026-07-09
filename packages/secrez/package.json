@@ -1,6 +1,6 @@
 {
   "name": "secrez",
-  "version": "2.1.16",
+  "version": "2.2.0",
   "license": "MIT",
   "scripts": {
     "dev": "cross-env NODE_ENV=dev bin/secrez.js -c `pwd`/tmp/secrez-dev -i 1e3 -l `pwd`/tmp",
@@ -24,7 +24,7 @@
     "chalk": "^3.0.0",
     "clipboardy": "^2.3.0",
     "command-line-args": "^5.2.1",
-    "external-editor": "^3.1.0",
+    "ansi-escapes": "^4.3.2",
     "fs-extra": "^9.1.0",
     "homedir": "^0.6.0",
     "inquirer": "^7.3.3",
@@ -33,11 +33,10 @@
     "lodash": "^4.17.21",
     "otplib": "^12.0.1",
     "qrcode": "^1.5.4",
-    "qrcode-reader": "^1.0.4",
-    "tiny-cli-editor": "^0.1.1"
+    "qrcode-reader": "^1.0.4"
   },
   "devDependencies": {
-    "@secrez/test-helpers": "workspace:~2.0.2",
+    "@secrez/test-helpers": "workspace:~2.0.3",
     "chai": "^4.5.0",
     "chalk": "^3.0.0",
     "cross-env": "^7.0.3",

@@ -22,7 +22,7 @@
     "yaml": "^1.10.2"
   },
   "devDependencies": {
-    "@secrez/test-helpers": "workspace:~2.0.2",
+    "@secrez/test-helpers": "workspace:~2.0.3",
     "chai": "^4.5.0",
     "chalk": "^3.0.0",
     "cross-env": "^7.0.3",
