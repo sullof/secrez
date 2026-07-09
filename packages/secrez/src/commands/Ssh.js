@@ -1,7 +1,9 @@
 const path = require("path");
 const fs = require("fs-extra");
-const { execSync } = require("child_process");
-const { execAsync } = require("@secrez/utils");
+const utils = require("@secrez/utils");
+
+const SSH_USER_RE = /^[a-zA-Z0-9._-]+$/;
+const SSH_HOST_RE = /^[a-zA-Z0-9.-]+$/;
 
 class Ssh extends require("../Command") {
   setHelpAndCompletion() {
@@ -68,15 +70,31 @@ class Ssh extends require("../Command") {
     };
   }
 
+  validateSshUser(user) {
+    if (!SSH_USER_RE.test(user)) {
+      throw new Error(`Invalid SSH user "${user}"`);
+    }
+  }
+
+  validateSshHost(host) {
+    if (!SSH_HOST_RE.test(host)) {
+      throw new Error(`Invalid remote host "${host}"`);
+    }
+  }
+
   async ssh(options = {}) {
-    let result = await execAsync("which", __dirname, ["ttab"]);
+    if (!options.remoteHost) {
+      throw new Error("A remote host is required");
+    }
+    const user = options.user || "root";
+    this.validateSshUser(user);
+    this.validateSshHost(options.remoteHost);
+
+    let result = await utils.execAsync("which", __dirname, ["ttab"]);
     if (!result.message || result.code === 1) {
       throw new Error(
         'On MacOS ttab is required. Run "npm i -g ttab" in another terminal to install it'
       );
-    }
-    if (!options.remoteHost) {
-      throw new Error("A remote host is required");
     }
     if (!options.identity) {
       throw new Error("A path to the identity key is required");
@@ -90,17 +108,24 @@ class Ssh extends require("../Command") {
     let sshPath = path.join(this.secrez.config.tmpPath, ".ssh");
     if (!(await fs.pathExists(sshPath))) {
       await fs.ensureDir(sshPath);
-      await execAsync("chmod", this.secrez.config.tmpPath, ["700", ".ssh"]);
+      await utils.execAsync("chmod", this.secrez.config.tmpPath, ["700", ".ssh"]);
     }
     let keyName = `id_${Math.random().toString().substring(2)}`;
     let keyPath = path.join(sshPath, keyName);
     await fs.writeFile(keyPath, key);
-    await execAsync("chmod", sshPath, ["600", keyName]);
-    execSync(
-      `ttab ssh ${
-        options.ignoreHostKeyCheck ? "-oStrictHostKeyChecking=no" : ""
-      } -i ${keyPath} ${options.user || "root"}@${options.remoteHost}`
-    );
+    await utils.execAsync("chmod", sshPath, ["600", keyName]);
+
+    const args = ["ssh"];
+    if (options.ignoreHostKeyCheck) {
+      args.push("-oStrictHostKeyChecking=no");
+    }
+    args.push("-i", keyPath, `${user}@${options.remoteHost}`);
+
+    result = await utils.execAsync("ttab", __dirname, args);
+    if (result.code !== 0) {
+      throw new Error(result.error || "Failed to open SSH tab");
+    }
+
     setTimeout(() => {
       fs.unlink(keyPath);
     }, 10000);
