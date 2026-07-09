@@ -6,6 +6,7 @@ module.exports = {
   Node: require("./Node"),
   DataCache: require("./DataCache"),
   FileCipher: require("./FileCipher"),
+  FileCipherLegacy: require("./fileCipherLegacy"),
   GitConflictChecker: require("./GitConflictChecker"),
   version: require("../package").version,
 };

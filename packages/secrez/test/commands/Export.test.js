@@ -249,6 +249,7 @@ describe("#Export", function () {
       path: "file1.tar.gz",
       encrypt: true,
       password: "some weird password",
+      iterations,
     });
     inspect.restore();
     assertConsole(inspect, ["Exported file:", "file1.tar.gz.secrezb"]);
@@ -262,6 +263,7 @@ describe("#Export", function () {
       path: "file1.tar.gz",
       encrypt: true,
       password: "some weird password",
+      iterations,
     });
     inspect.restore();
     assertConsole(inspect, ["Exported file:", "file1.tar.gz.secrezb.2"]);

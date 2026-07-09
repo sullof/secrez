@@ -13,6 +13,7 @@ const Crypto = require("./lib/Crypto0");
 const Node = require("./lib/Node0");
 const gitTestRemote = require("./lib/gitTestRemote");
 const clipboardTest = require("./lib/clipboardTest");
+const fileCipherLegacy = require("./lib/fileCipherLegacy");
 const https = require("https");
 
 const helpers = {
@@ -275,6 +276,7 @@ const helpers = {
 
   ...gitTestRemote,
   ...clipboardTest,
+  ...fileCipherLegacy,
 };
 
 module.exports = helpers;

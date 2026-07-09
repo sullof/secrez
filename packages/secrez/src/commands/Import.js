@@ -77,6 +77,11 @@ class Import extends require("../Command") {
         type: String,
       },
       {
+        name: "iterations",
+        alias: "i",
+        type: Number,
+      },
+      {
         name: "public-key",
         type: String,
       },
@@ -101,8 +106,12 @@ class Import extends require("../Command") {
           "copies seed.json from the disk into the current directory",
         ],
         [
-          "import seed.json.secrez --password s8eeuhwy36534",
-          "imports seed.json and decrypts it using the specified password",
+          "import seed.json.secrez --password s8eeuhwy36534 -i 500000",
+          "imports seed.json and decrypts it using the specified password and iterations",
+        ],
+        [
+          "import old-backup.secrez --password s8eeuhwy36534",
+          "imports a file encrypted with the legacy v1 format (password only; no iterations)",
         ],
         [
           "import seed.json.secrez",
@@ -246,6 +255,24 @@ class Import extends require("../Command") {
               options.returnUint8Array = isEncryptedBinary;
               if (!options.contactPublicKey) {
                 options.contactsPublicKeys = contactsPublicKeys;
+              }
+              const version = String(c[2]).split(",")[0];
+              if (version === "2" && options.password && !options.iterations) {
+                let iterationsInput = await this.useInput({
+                  message:
+                    "Type the number of iterations used when the file was exported",
+                  validate: (val) => {
+                    const n = parseInt(val, 10);
+                    return (
+                      (n > 0 && String(n) === String(val).trim()) ||
+                      "Must be a positive integer"
+                    );
+                  },
+                });
+                if (!iterationsInput) {
+                  throw new Error("Operation canceled");
+                }
+                options.iterations = parseInt(iterationsInput, 10);
               }
               c[2] = fileCipher.decryptFile(c[2], options);
             } catch (e) {
