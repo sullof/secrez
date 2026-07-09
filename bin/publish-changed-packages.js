@@ -45,7 +45,9 @@ if (!changes) {
   console.log("✅ No packages need to be published.");
 } else {
   // Generate shell script
-  const scriptPath = path.resolve(__dirname, "../tmp/publish-packages.sh");
+  const tmpPath = path.resolve(__dirname, "../tmp");
+  fs.ensureDirSync(tmpPath);
+  const scriptPath = path.resolve(tmpPath, "publish-packages.sh");
   const scriptContent = `#!/bin/bash
 
 # Auto-generated publish script for Secrez packages
