@@ -2,6 +2,9 @@ const path = require("path");
 const fs = require("fs");
 const { execSync } = require("child_process");
 
+const preview =
+  process.argv.includes("--preview") || process.argv.includes("--dry-run");
+
 let packages = {};
 execSync("git diff main --name-only")
   .toString()
@@ -42,6 +45,15 @@ function getExistingVersion(pkg) {
     .split(" ")[1];
 }
 
+function getVersionToPublish(packageVersion, publishedVersion) {
+  if (packageVersion !== publishedVersion) {
+    return packageVersion;
+  }
+  let v = packageVersion.split(".");
+  v[2] = parseInt(v[2], 10) + 1;
+  return v.join(".");
+}
+
 function updateOtherPackages(package0, name, newVersion) {
   console.debug("Patching " + package0 + " to version " + newVersion);
   for (let p in packagesJson) {
@@ -64,25 +76,39 @@ function updateOtherPackages(package0, name, newVersion) {
   }
 }
 
-for (let p in packages) {
-  let json = packagesJson[p];
-  if (json) {
-    let { version, name } = json;
-    if (version === getExistingVersion(name)) {
-      let v = version.split(".");
-      v[2] = parseInt(v[2]) + 1;
-      v = v.join(".");
-      json.version = v;
-      updateOtherPackages(p, name, v);
+if (preview) {
+  const changed = Object.keys(packages).filter((p) => packagesJson[p]);
+  if (!changed.length) {
+    console.log("No packages changed against main.");
+  } else {
+    for (let p of changed) {
+      let { version, name } = packagesJson[p];
+      let published = getExistingVersion(name);
+      let toPublish = getVersionToPublish(version, published);
+      console.log(
+        `${p} (${name}): published ${published}, to publish ${toPublish}`
+      );
     }
   }
-}
+} else {
+  for (let p in packages) {
+    let json = packagesJson[p];
+    if (json) {
+      let { version, name } = json;
+      if (version === getExistingVersion(name)) {
+        let v = getVersionToPublish(version, version);
+        json.version = v;
+        updateOtherPackages(p, name, v);
+      }
+    }
+  }
 
-for (let p in packagesJson) {
-  fs.writeFileSync(
-    path.resolve(__dirname, "../packages", p, "package.json"),
-    JSON.stringify(packagesJson[p], null, 2) + "\n"
-  );
-}
+  for (let p in packagesJson) {
+    fs.writeFileSync(
+      path.resolve(__dirname, "../packages", p, "package.json"),
+      JSON.stringify(packagesJson[p], null, 2) + "\n"
+    );
+  }
 
-console.debug("Done");
+  console.debug("Done");
+}

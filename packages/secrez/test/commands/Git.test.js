@@ -4,9 +4,15 @@ const stdout = require("test-console").stdout;
 const fs = require("fs-extra");
 const path = require("path");
 const MainPrompt = require("../../src/prompts/MainPromptMock");
-const { assertConsole, noPrint, decolorize } = require("@secrez/test-helpers");
+const {
+  noPrint,
+  decolorize,
+  createBareRemote,
+  resetBareRemote,
+  cloneFromBareRemote,
+  configureGitUser,
+} = require("@secrez/test-helpers");
 const { execAsync } = require("@secrez/utils");
-require("dotenv").config({ quiet: true });
 
 const { password, iterations } = require("../fixtures");
 
@@ -17,62 +23,44 @@ describe("#Git", function () {
   let testDir;
   let localDir1;
   let localDir2;
-  let tempSshKeyPath;
-  const testRepoUrl = process.env.SECREZ_TEST_REPO_URL;
+  let bareRepoPath;
+  let initialCommitSha;
 
   before(async function () {
-    this.timeout(15000); // Increase timeout for git operations
-
-    if (!testRepoUrl) {
-      this.skip();
-    }
+    this.timeout(30000);
 
     testDir = path.resolve(__dirname, "../../tmp/test-git");
     localDir1 = path.join(testDir, "local1");
     localDir2 = path.join(testDir, "local2");
-    tempSshKeyPath = path.join(testDir, "temp_ssh_key");
 
-    await fs.emptyDir(testDir);
-    await fs.emptyDir(localDir1);
-    await fs.emptyDir(localDir2);
-
-    // Check if required environment variables are set
-    if (!process.env.SECREZ_TEST_REPO_URL) {
-      throw new Error(
-        `SECREZ_TEST_REPO_URL environment variable not set. Please set it to your test repository URL (e.g., "git@github.com:username/repo.git")`
-      );
-    }
-
-    if (!process.env.SECREZ_TEST_SSH_KEY) {
-      throw new Error(`SECREZ_TEST_SSH_KEY environment variable not set. Please:
-1. Generate SSH key: ssh-keygen -t ed25519 -f ./secrez_test_key -C "secrez-test@example.com"
-2. Add public key to GitHub as deploy key with write access
-3. Set SECREZ_TEST_SSH_KEY environment variable with the private key content`);
-    }
-
-    // Create temporary SSH key file from environment variable
-    await fs.writeFile(tempSshKeyPath, process.env.SECREZ_TEST_SSH_KEY);
-    await fs.chmod(tempSshKeyPath, 0o600);
-
-    // Clone the test repository in both folders
-    const env = {
-      ...process.env,
-      GIT_SSH_COMMAND: `ssh -i ${tempSshKeyPath} -o StrictHostKeyChecking=no`,
-    };
-    await execAsync("git", testDir, ["clone", testRepoUrl, "local1"], { env });
-    await execAsync("git", testDir, ["clone", testRepoUrl, "local2"], { env });
-
-    // Configure git in both repos
-    for (const dir of [localDir1, localDir2]) {
-      await execAsync("git", dir, ["config", "user.name", "Test User"]);
-      await execAsync("git", dir, ["config", "user.email", "test@example.com"]);
-    }
+    ({ bareRepoPath, initialCommitSha } = await createBareRemote(
+      testDir,
+      async (bootstrapDir) => {
+        const prompt = new MainPrompt();
+        await prompt.init({
+          container: bootstrapDir,
+          localDir: __dirname,
+        });
+        await prompt.secrez.signup(password, iterations);
+        await prompt.internalFs.init();
+      }
+    ));
   });
 
   beforeEach(async function () {
-    this.timeout(10000);
+    this.timeout(30000);
 
-    // Initialize first prompt with localDir1
+    await resetBareRemote(bareRepoPath, initialCommitSha);
+    await fs.remove(localDir1);
+    await fs.remove(localDir2);
+
+    await cloneFromBareRemote(testDir, bareRepoPath, "local1");
+    await cloneFromBareRemote(testDir, bareRepoPath, "local2");
+
+    for (const dir of [localDir1, localDir2]) {
+      await configureGitUser(dir);
+    }
+
     prompt = new MainPrompt();
     await prompt.init({
       container: localDir1,
@@ -82,7 +70,6 @@ describe("#Git", function () {
     await prompt.secrez.signin(password, iterations);
     await prompt.internalFs.init();
 
-    // Initialize second prompt with localDir2
     prompt2 = new MainPrompt();
     await prompt2.init({
       container: localDir2,
@@ -109,14 +96,11 @@ describe("#Git", function () {
   });
 
   it("should show git status when --status is used", async function () {
-    this.timeout(10000); // Increase timeout for git operations
-
     inspect = stdout.inspect();
     await C.git.exec({ status: true });
     inspect.restore();
     let output = inspect.output.map((e) => decolorize(e));
 
-    // Should show either "No remote changes found." or a warning message
     assert.isTrue(
       /No remote changes found/.test(output.join("")) ||
         /Git Conflict Risk Detected/.test(output.join("")) ||
@@ -125,13 +109,10 @@ describe("#Git", function () {
   });
 
   it("should show git status by default", async function () {
-    this.timeout(10000); // Increase timeout for git operations
-
     inspect = stdout.inspect();
     await C.git.exec({});
     inspect.restore();
     let output = inspect.output.map((e) => decolorize(e));
-    // Should show either "No remote changes found." or a warning message
     assert.isTrue(
       /No remote changes found/.test(output.join("")) ||
         /Git Conflict Risk Detected/.test(output.join("")) ||
@@ -140,27 +121,18 @@ describe("#Git", function () {
   });
 
   it("should handle conflict risk scenario", async function () {
-    this.timeout(15000); // Increase timeout for git operations including push
-
-    // Make a change in localDir1 and push to remote to create a conflict scenario
-    const env = {
-      ...process.env,
-      GIT_SSH_COMMAND: `ssh -i ${tempSshKeyPath} -o StrictHostKeyChecking=no`,
-    };
     await fs.writeFile(
       path.join(localDir1, "conflict-test.txt"),
       "Remote change"
     );
     await execAsync("git", localDir1, ["add", "conflict-test.txt"]);
     await execAsync("git", localDir1, ["commit", "-m", "Conflict test"]);
-    await execAsync("git", localDir1, ["push", "origin", "main"], { env });
+    await execAsync("git", localDir1, ["push", "origin", "main"]);
 
-    // Now test with prompt2 (localDir2) - should be behind
     inspect = stdout.inspect();
     await C2.git.exec({ status: true });
     inspect.restore();
     let output = inspect.output.map((e) => decolorize(e));
-    // The result should indicate a conflict risk or be up to date depending on fetch timing
     assert.isTrue(
       /Git Conflict Risk Detected/.test(output.join("")) ||
         /No remote changes found/.test(output.join(""))
@@ -168,59 +140,31 @@ describe("#Git", function () {
   });
 
   it("should do nothing when --push is used with no changes", async function () {
-    this.timeout(15000);
-
-    if (!testRepoUrl) {
-      this.skip();
-    }
-
-    // Ensure pushes use the test SSH key
-    process.env.GIT_SSH_COMMAND = `ssh -i ${tempSshKeyPath} -o StrictHostKeyChecking=no`;
-
-    // Make sure there are no uncommitted changes before pushing
-    // Running status should be enough; we won't create any changes here
-
-    // Execute git --push
     inspect = stdout.inspect();
     await C2.git.exec({ push: true });
     inspect.restore();
     const output = inspect.output.map((e) => decolorize(e)).join("");
 
-    // Expect the command to report no changes
     assert.match(output, /No changes in the repository/);
   });
 
   it("should push changes and update fingerprint when --push is used", async function () {
-    this.timeout(20000);
-
-    if (!testRepoUrl) {
-      this.skip();
-    }
-
-    // Ensure the SSH command is available to child processes invoked by the command
-    process.env.GIT_SSH_COMMAND = `ssh -i ${tempSshKeyPath} -o StrictHostKeyChecking=no`;
-
-    // Capture previous fingerprint
     const beforeFingerprint =
       prompt2.internalFs.gitConflictChecker.initialGitState;
 
-    // Make an uncommitted change using Secrez itself (creating a new entry)
     await noPrint(
       C2.touch.exec({
         path: `/push-test-${Date.now()}`,
       })
     );
 
-    // Run the push via Secrez command
     inspect = stdout.inspect();
     await C2.git.exec({ push: true });
     inspect.restore();
     let output = inspect.output.map((e) => decolorize(e)).join("");
 
-    // Should confirm push and fingerprint update
     assert.match(output, /Pushed successfully\. Fingerprint updated\./);
 
-    // Verify fingerprint updated to current HEAD
     const status = await prompt2.internalFs.gitConflictChecker.getGitStatus();
     const afterFingerprint =
       prompt2.internalFs.gitConflictChecker.initialGitState;
@@ -236,13 +180,9 @@ describe("#Git", function () {
   });
 
   it("should handle non-git repository", async function () {
-    this.timeout(10000);
-
-    // Create a temporary non-git directory with .secrez structure
     const nonGitDir = path.join(testDir, "non-git-secrez");
     await fs.emptyDir(nonGitDir);
 
-    // Create a temporary prompt and signup in the non-git directory
     const tempPrompt = new MainPrompt();
     await tempPrompt.init({
       container: nonGitDir,
@@ -257,18 +197,13 @@ describe("#Git", function () {
     let output = inspect.output.map((e) => decolorize(e));
     assert.isTrue(/Not a git repository/.test(output.join("")));
 
-    // Clean up
     await fs.remove(nonGitDir);
   });
 
   it("should allow normal operations in non-git repository", async function () {
-    this.timeout(10000);
-
-    // Create a temporary non-git directory with .secrez structure
     const nonGitDir = path.join(testDir, "non-git-operations");
     await fs.emptyDir(nonGitDir);
 
-    // Create a prompt and signup in the non-git directory
     const tempPrompt = new MainPrompt();
     await tempPrompt.init({
       container: nonGitDir,
@@ -277,10 +212,8 @@ describe("#Git", function () {
     await tempPrompt.secrez.signup(password, iterations);
     await tempPrompt.internalFs.init();
 
-    // Verify no git fingerprint was captured
     assert.isNull(tempPrompt.internalFs.gitConflictChecker.initialGitState);
 
-    // Create a file - should work normally without any git checks blocking it
     inspect = stdout.inspect();
     await tempPrompt.commands.touch.exec({
       path: "/test-file-1.txt",
@@ -288,18 +221,15 @@ describe("#Git", function () {
     inspect.restore();
     let output = inspect.output.map((e) => decolorize(e));
 
-    // Should NOT show any git warnings
     assert.isFalse(/Repository State Changed Externally/.test(output.join("")));
     assert.isFalse(/Git Conflict Risk/.test(output.join("")));
 
-    // Verify the file was created successfully
     inspect = stdout.inspect();
     await tempPrompt.commands.ls.exec({ path: "/", list: true });
     inspect.restore();
     output = inspect.output.map((e) => decolorize(e)).join("");
     assert.isTrue(/test-file-1\.txt/.test(output));
 
-    // Create another file - should also work
     await noPrint(
       tempPrompt.commands.touch.exec({
         path: "/test-file-2.txt",
@@ -312,14 +242,12 @@ describe("#Git", function () {
     output = inspect.output.map((e) => decolorize(e)).join("");
     assert.isTrue(/test-file-2\.txt/.test(output));
 
-    // Clean up
     await fs.remove(nonGitDir);
   });
 
   it("should detect external git changes and block operations", async function () {
-    this.timeout(20000); // Increase timeout for git operations
+    let output;
 
-    // initialize a third prompt with localDir1
     const prompt3 = new MainPrompt();
     await prompt3.init({
       container: localDir1,
@@ -329,25 +257,22 @@ describe("#Git", function () {
     await prompt3.secrez.signin(password, iterations);
     await prompt3.internalFs.init();
 
-    // Verify git fingerprint was captured (since this IS a git repo)
     assert.isNotNull(prompt3.internalFs.gitConflictChecker.initialGitState);
-
-    const env = {
-      ...process.env,
-      GIT_SSH_COMMAND: `ssh -i ${tempSshKeyPath} -o StrictHostKeyChecking=no`,
-    };
 
     inspect = stdout.inspect();
     await C.ls.exec({ path: "/test-before-external-commit-*", list: true });
     inspect.restore();
-    let output = inspect.output.map((e) => decolorize(e))[0].split("\n");
-    for (let i = 0; i < output.length; i++) {
-      let cols = output[i].split(/ +/);
+    const lsLines = inspect.output.length
+      ? inspect.output.map((e) => decolorize(e))[0].split("\n")
+      : [];
+    for (let i = 0; i < lsLines.length; i++) {
+      let cols = lsLines[i].split(/ +/);
       let file = cols[cols.length - 1];
-      await noPrint(C.rm.exec({ path: file }));
+      if (file) {
+        await noPrint(C.rm.exec({ path: file }));
+      }
     }
 
-    // Create a new file
     const newPath = "/test-before-external-commit-" + Date.now();
     await noPrint(
       C.touch.exec({
@@ -355,21 +280,16 @@ describe("#Git", function () {
       })
     );
 
-    // Quit the prompt
     await noPrint(C.quit.exec({}));
 
-    // Now run git commands OUTSIDE of Secrez to commit and push
-    // This simulates a user committing in another terminal while Secrez is running
     await execAsync("git", localDir1, ["add", "-A"]);
     await execAsync("git", localDir1, [
       "commit",
       "-m",
       "External commit while Secrez running",
     ]);
-    await execAsync("git", localDir1, ["push", "origin", "main"], { env });
+    await execAsync("git", localDir1, ["push", "origin", "main"]);
 
-    // Now C3's repository state has changed externally (new HEAD commit)
-    // Try another write operation - this should be blocked
     inspect = stdout.inspect();
     await C3.touch.exec({
       path: "/test-after-external-commit",
@@ -377,13 +297,11 @@ describe("#Git", function () {
     inspect.restore();
     output = inspect.output.map((e) => decolorize(e));
 
-    // Should show the external change warning
     assert.isTrue(/Repository State Changed Externally/.test(output.join("")));
     assert.isTrue(
       /only READ operations and QUIT are allowed/.test(output.join(""))
     );
 
-    // Verify the file was NOT created (operation was blocked)
     inspect = stdout.inspect();
     await C3.ls.exec({ path: "test-after-external-commit", list: true });
     inspect.restore();

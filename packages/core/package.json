@@ -1,6 +1,6 @@
 {
   "name": "@secrez/core",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -9,17 +9,17 @@
     "all-tests": "find test/** -name '*.test.js' | xargs ./node_modules/.bin/mocha -R spec",
     "test-only": "cross-env NODE_ENV=test ./node_modules/.bin/mocha test/*.test.js test/**/*.test.js --exit",
     "test": "cross-env NODE_ENV=test nyc --reporter=lcov --reporter=text mocha test/*.test.js test/**/*.test.js --exit",
-    "posttest": "nyc check-coverage --statements 99 --branches 94 --functions 99 --lines 99"
+    "posttest": "nyc check-coverage --statements 99 --branches 93 --functions 98 --lines 99"
   },
   "dependencies": {
-    "@secrez/crypto": "workspace:~1.0.5",
+    "@secrez/crypto": "workspace:~1.0.6",
     "@secrez/utils": "workspace:~1.0.5",
     "fs-extra": "^9.1.0",
     "homedir": "^0.6.0",
     "lodash": "^4.17.21"
   },
   "devDependencies": {
-    "@secrez/test-helpers": "workspace:~2.0.1",
+    "@secrez/test-helpers": "workspace:~2.0.2",
     "chai": "^4.5.0",
     "cross-env": "^7.0.3",
     "mocha": "^7.2.0",

@@ -83,45 +83,10 @@ module.exports = function () {
       _secrez = new _Secrez(this);
       await _secrez.init(password, iterations);
       /* istanbul ignore if  */
-      if (!data.key && !data.keys) {
+      if (!data.key) {
         throw new Error("No valid data found");
       }
-      if (data.key) {
-        let masterKeyHash = await _secrez.signin(data);
-        this.setMasterKeyHash(conf, masterKeyHash);
-      } else {
-        throw new Error("A second factor is required");
-      }
-      return 0;
-    }
-
-    async sharedSignin(authenticator, secret) {
-      if (
-        !this.config ||
-        !this.config.keysPath ||
-        !_secrez ||
-        !_secrez.isInitiated()
-      ) {
-        throw new Error(
-          "A standard sign in must be run before to initiate Secrez"
-        );
-      }
-      const conf = await this.readConf();
-      const data = conf.data;
-      /* istanbul ignore if  */
-      if (!data.keys) {
-        throw new Error("No second factor registered");
-      }
-      if (!data.keys[authenticator]) {
-        throw new Error(
-          `No second factor registered with the authenticator ${authenticator}`
-        );
-      }
-      let masterKeyHash = await _secrez.sharedSignin(
-        data,
-        authenticator,
-        secret
-      );
+      let masterKeyHash = await _secrez.signin(data);
       this.setMasterKeyHash(conf, masterKeyHash);
       return 0;
     }
@@ -140,61 +105,6 @@ module.exports = function () {
       const env = await ConfigUtils.getEnv(this.config);
       env.iterations = iterations;
       await ConfigUtils.putEnv(this.config, env);
-    }
-
-    generateSharedSecrets(secret) {
-      return _secrez.generateSharedSecrets(secret);
-    }
-
-    async removeSharedSecret(authenticator, all) {
-      let data = _secrez.conf.data;
-      let code = 1;
-      let removeAll = true;
-      if (!all) {
-        if (data.keys && data.keys[authenticator]) {
-          delete data.keys[authenticator];
-        }
-        for (let authenticator in data.keys) {
-          if (
-            data.keys[authenticator].type === this.config.sharedKeys.FIDO2_KEY
-          ) {
-            removeAll = false;
-            break;
-          }
-        }
-      }
-      if (removeAll) {
-        code = 2;
-        _secrez.restoreKey();
-      }
-      let conf = await this.signAndSave(data);
-      _secrez.setConf(conf, DO_NOT_VERIFY);
-      return code;
-    }
-
-    async saveSharedSecrets(sharedData) {
-      let conf = await this.readConf();
-      if (!conf.data.keys) {
-        conf.data.keys = {};
-      }
-      let authenticator = sharedData.authenticator;
-      delete sharedData.authenticator;
-      if (sharedData.id) {
-        sharedData.id = this.preEncryptData(sharedData.id);
-      }
-      if (sharedData.salt) {
-        sharedData.salt = this.preEncryptData(sharedData.salt);
-      }
-      if (sharedData.credential) {
-        sharedData.credential = this.preEncryptData(sharedData.credential);
-      }
-      conf.data.keys[authenticator] = sharedData;
-      if (conf.data.key) {
-        delete conf.data.key;
-      }
-      conf = await this.signAndSave(conf.data);
-      _secrez.setConf(conf, DO_NOT_VERIFY);
-      return conf;
     }
 
     getConf() {
@@ -237,28 +147,6 @@ module.exports = function () {
         signature,
         Crypto.bs64.decode(publicKey || this.getConf().data.sign.publicKey)
       );
-    }
-
-    async getSecondFactorData(authenticator) {
-      if (
-        !this.config ||
-        !this.config.keysPath ||
-        !_secrez ||
-        !_secrez.isInitiated()
-      ) {
-        throw new Error(
-          "A standard sign in must be run before to initiate Secrez"
-        );
-      }
-      const conf = await this.readConf();
-      let data = conf.data.keys[authenticator];
-      if (data) {
-        return data;
-      } else {
-        throw new Error(
-          `No registered data with the authenticator ${authenticator}`
-        );
-      }
     }
 
     setMasterKeyHash(conf, masterKeyHash) {

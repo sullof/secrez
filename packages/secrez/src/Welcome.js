@@ -96,9 +96,6 @@ Thanks.`);
           }
           return 0;
         } catch (e) {
-          if (e.message === "A second factor is required") {
-            return 1;
-          }
           Logger.red(`${e.message}.Try again or Ctrl - C to exit.`);
         }
       } catch (e) {

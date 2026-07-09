@@ -1,6 +1,6 @@
 {
   "name": "secrez",
-  "version": "2.1.15",
+  "version": "2.1.16",
   "license": "MIT",
   "scripts": {
     "dev": "cross-env NODE_ENV=dev bin/secrez.js -c `pwd`/tmp/secrez-dev -i 1e3 -l `pwd`/tmp",
@@ -15,8 +15,8 @@
     "exclude": []
   },
   "dependencies": {
-    "@secrez/core": "workspace:~1.0.6",
-    "@secrez/crypto": "workspace:~1.0.5",
+    "@secrez/core": "workspace:~1.0.7",
+    "@secrez/crypto": "workspace:~1.0.6",
     "@secrez/eth": "workspace:~0.0.5",
     "@secrez/fs": "workspace:~1.0.8",
     "@secrez/utils": "workspace:~1.0.5",
@@ -37,7 +37,7 @@
     "tiny-cli-editor": "^0.1.1"
   },
   "devDependencies": {
-    "@secrez/test-helpers": "workspace:~2.0.1",
+    "@secrez/test-helpers": "workspace:~2.0.2",
     "chai": "^4.5.0",
     "chalk": "^3.0.0",
     "cross-env": "^7.0.3",

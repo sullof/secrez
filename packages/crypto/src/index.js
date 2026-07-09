@@ -1,7 +1,6 @@
 const crypto = require("crypto");
 const { Keccak } = require("sha3");
 const basex = require("base-x");
-const shamir = require("shamir");
 const { bytesToBase64, base64ToBytes } = require("byte-base64");
 const { TextEncoder, TextDecoder } = require("util");
 const utf8Encoder = new TextEncoder();
@@ -371,18 +370,6 @@ class Crypto {
 
   static arrayToUtf8(bytes) {
     return utf8Decoder.decode(bytes);
-  }
-
-  static splitSecret(secretBytes, parts, quorum) {
-    if (!Crypto.isUint8Array(secretBytes)) {
-      secretBytes = Crypto.utf8ToArray(secretBytes);
-    }
-    return shamir.split(Crypto.randomBytes, parts, quorum, secretBytes);
-  }
-
-  static joinSecret(parts, asUint8Array) {
-    const recovered = shamir.join(parts);
-    return asUint8Array ? recovered : Buffer.from(recovered).toString("utf8");
   }
 
   static getSignPublicKeyFromSecretPublicKey(publicKey) {

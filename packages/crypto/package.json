@@ -1,6 +1,6 @@
 {
   "name": "@secrez/crypto",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -16,7 +16,6 @@
     "byte-base64": "^1.1.0",
     "microseconds": "^0.2.0",
     "sha3": "^2.1.4",
-    "shamir": "^0.7.1",
     "tweetnacl": "^1.0.3"
   },
   "devDependencies": {

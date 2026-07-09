@@ -11,17 +11,6 @@ module.exports = {
   iterationsB58: "7Yq",
   hash23456iterations: "GCF7ytpi9DyMPbuDhLj6vW1oSe99nBTLzABcb1qvTeLY",
   hash23456iterationsNoSalt: "Ie0UBSFx4087Vpz5en70+Giitq/zAZYKRGDzAFFk1Ik=",
-  secondFactor: {
-    authenticator: "yubo",
-    id: "7sheywt3rfse",
-    salt: "jskeywhetduw63t4f45stwgeyrhtteur",
-    secret: "sadsasewiuwnefdnsd09f38092erdu9feaofjfwy2feqoasz",
-    credential: "sadadada",
-    recoveryCode:
-      "salad spring peace silk snake real they thunder please final clinic close",
-    wrongMnemonic:
-      "they thunder please final clinic close salad spring peace silk snake real",
-  },
   passphrase: "when John breaks the cronicle",
   signaturePair: {
     publicKey: [

@@ -122,11 +122,6 @@ module.exports = function () {
       return data;
     }
 
-    async restoreKey() {
-      delete this.conf.data.keys;
-      this.conf.data.key = this.preEncrypt(__.masterKey);
-    }
-
     setConf(conf, doNotVerify) {
       /* istanbul ignore if  */
       if (!doNotVerify && !this.verifySavedData(conf)) {
@@ -200,48 +195,10 @@ module.exports = function () {
       }
     }
 
-    async sharedSignin(data, authenticator, secret) {
-      let key = data.keys[authenticator];
-      try {
-        let masterKey = this.recoverSharedSecrets(key.parts, secret);
-        /* istanbul ignore if  */
-        if (!utils.secureCompare(Crypto.b64Hash(masterKey), data.hash)) {
-          throw new Error("Hash on file does not match the master key");
-        }
-        __.masterKey = masterKey;
-        __.masterKeyArray = Crypto.bs64.decode(__.masterKey);
-        __.masterKeyHash = data.hash;
-        __.boxPublicKey = Crypto.bs64.decode(data.box.secretKey);
-        __.boxPrivateKey = __.decrypt(data.box.secretKey, RETURN_UINT8_ARRAY);
-        __.signPublicKey = Crypto.bs64.decode(data.sign.secretKey);
-        __.signPrivateKey = __.decrypt(data.sign.secretKey, RETURN_UINT8_ARRAY);
-        __.encryptedBoxPrivateKey = data.box.secretKey;
-        __.encryptedSignPrivateKey = data.sign.secretKey;
-        return data.hash;
-      } catch (e) {
-        throw new Error("Wrong data/secret");
-      }
-    }
-
     static async derivePassword(password = __.password, iterations) {
       password = Crypto.SHA3(password);
       let salt = Crypto.SHA3(password + iterations.toString());
       return bs64.encode(Crypto.deriveKey(password, salt, iterations, 32));
-    }
-
-    generateSharedSecrets(secret) {
-      let parts = Crypto.splitSecret(__.masterKey, 2, 2);
-      parts[1] = this.preEncrypt(parts["1"]);
-      parts[2] = Crypto.encrypt(parts["2"], Crypto.SHA3(secret));
-      return parts;
-    }
-
-    recoverSharedSecrets(parts, secret) {
-      parts = {
-        1: __.preDecrypt(parts[1], RETURN_UINT8_ARRAY),
-        2: Crypto.decrypt(parts[2], Crypto.SHA3(secret), RETURN_UINT8_ARRAY),
-      };
-      return Crypto.joinSecret(parts);
     }
 
     signData(data) {
