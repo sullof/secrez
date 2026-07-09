@@ -20,6 +20,10 @@ API documentation
 
 ## History
 
+**1.0.7**
+
+- remove legacy shared-secret / second-factor authentication API (`sharedSignin`, `generateSharedSecrets`, `recoverSharedSecrets`, `removeSharedSecret`, `getSecondFactorData`, and related config); sign-in now requires only the master key
+
 **0.8.5**
 
 - improve \_Secrez and Secrez encapsulation of private data
@@ -28,20 +32,20 @@ API documentation
 ## Test coverage
 
 ```
-  60 passing (889ms)
+  54 passing (929ms)
 
 -----------------|---------|----------|---------|---------|-------------------
-File             | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s
+File             | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
 -----------------|---------|----------|---------|---------|-------------------
-All files        |   99.75 |    94.31 |     100 |   99.75 |
- src             |     100 |    96.06 |     100 |     100 |
-  Entry.js       |     100 |    95.65 |     100 |     100 | 39
-  Secrez.js      |     100 |    96.94 |     100 |     100 | 154,319,442
-  _Secrez.js     |     100 |    91.66 |     100 |     100 | 14,226
- src/config      |   98.57 |    84.84 |     100 |   98.57 |
-  ConfigUtils.js |   98.48 |    84.84 |     100 |   98.48 | 137
-  booleans.js    |     100 |      100 |     100 |     100 |
-  index.js       |     100 |      100 |     100 |     100 |
+All files        |   99.39 |    93.49 |    98.5 |   99.39 |                   
+ src             |   99.61 |    95.58 |   98.24 |   99.61 |                   
+  Entry.js       |     100 |    95.65 |     100 |     100 | 39                
+  Secrez.js      |     100 |    96.66 |     100 |     100 | 207,330           
+  _Secrez.js     |   98.93 |     91.3 |   95.65 |   98.93 | 101               
+ src/config      |   98.57 |    84.84 |     100 |   98.57 |                   
+  ConfigUtils.js |   98.48 |    84.84 |     100 |   98.48 | 137               
+  booleans.js    |     100 |      100 |     100 |     100 |                   
+  index.js       |     100 |      100 |     100 |     100 |                   
 -----------------|---------|----------|---------|---------|-------------------
 ```
 

@@ -43,16 +43,6 @@ class Conf extends require("../Command") {
     };
   }
 
-  async getAllFactors() {
-    let allFactors = {};
-    const conf = this.secrez.getConf();
-    let keys = conf.data.keys || {};
-    for (let authenticator in keys) {
-      allFactors[authenticator] = keys[authenticator].type;
-    }
-    return allFactors;
-  }
-
   async showConf(options) {
     const env = await ConfigUtils.getEnv(this.secrez.config);
     this.Logger.reset(chalk.grey("Container: ") + this.secrez.config.container);
@@ -85,10 +75,6 @@ class Conf extends require("../Command") {
       throw new Error(
         "Changing password and number of iterations in the same operation not allowed"
       );
-    }
-    let haveSomeFactors = false;
-    if (Object.keys(await this.getAllFactors()).length) {
-      haveSomeFactors = true;
     }
     let message =
       "Are you sure you want to upgrade your " +
@@ -140,11 +126,6 @@ class Conf extends require("../Command") {
               this.Logger.reset(
                 'In case you have doubts about it, please, "cat" the file and take a look before exiting.'
               );
-              if (haveSomeFactors) {
-                this.Logger.yellow(
-                  "All the second factors have been unregistered."
-                );
-              }
               return;
             }
           }

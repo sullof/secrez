@@ -11,6 +11,7 @@ const config = require("./lib/coreConfig");
 const Entry = require("./lib/Entry0");
 const Crypto = require("./lib/Crypto0");
 const Node = require("./lib/Node0");
+const gitTestRemote = require("./lib/gitTestRemote");
 const https = require("https");
 
 const helpers = {
@@ -270,6 +271,8 @@ const helpers = {
     }
     if (!errMsg) assert.isTrue(false);
   },
+
+  ...gitTestRemote,
 };
 
 module.exports = helpers;

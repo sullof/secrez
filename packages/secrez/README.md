@@ -368,6 +368,11 @@ Secrez is not intended to compete with password managers, so do not expect it to
 
 ## History
 
+**2.1.16**
+
+- remove legacy second-factor handling from the CLI (`Welcome`, `Conf`)
+- refactor `git` command tests to use a local bare repository instead of a private GitHub remote (no SSH keys or external setup required)
+
 **2.1.15**
 
 - add `find -R` to look for recent entries only. With `-l` to set a limit (default 10)

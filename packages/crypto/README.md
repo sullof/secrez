@@ -12,6 +12,10 @@ API documentation
 
 ## History
 
+**1.0.6**
+
+- remove Shamir secret-sharing helpers (`splitSecret`, `joinSecret`) and the `shamir` dependency
+
 **0.1.5**
 
 - adds `bufferToUnti8Array`
@@ -31,17 +35,17 @@ API documentation
 ## Test coverage
 
 ```
-  35 passing (349ms)
+  34 passing (396ms)
   2 pending
 
 ----------|---------|----------|---------|---------|--------------------------------------
-File      | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s
+File      | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                    
 ----------|---------|----------|---------|---------|--------------------------------------
-All files |     100 |    89.36 |     100 |     100 |
- index.js |     100 |    89.36 |     100 |     100 | 34-45,78,104-115,195-199,224,401-405
+All files |     100 |    88.88 |     100 |     100 |                                      
+ index.js |     100 |    88.88 |     100 |     100 | 33-44,77,103-114,194-198,223,388-392 
 ----------|---------|----------|---------|---------|--------------------------------------
 
-> @secrez/crypto@1.0.5 posttest /Users/francescosullo/Projects/Secrez/secrez/packages/crypto
+> @secrez/crypto@1.0.6 posttest /Users/francescosullo/Projects/Secrez/secrez/packages/crypto
 > nyc check-coverage --statements 99 --branches 85 --functions 99 --lines 99
 
 

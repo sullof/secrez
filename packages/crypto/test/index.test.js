@@ -333,44 +333,6 @@ describe("#Crypto", function () {
     });
   });
 
-  describe("#splitSecret & #joinSecret", function () {
-    it("should generate a shared secret", async function () {
-      let secret = "Some crazy secret";
-      let parts = 5;
-      let quorum = 3;
-
-      let shared = Crypto.splitSecret(secret, parts, quorum);
-      delete shared[1];
-      let recovered = Crypto.joinSecret(shared);
-      assert.equal(secret, recovered);
-
-      delete shared[4];
-      recovered = Crypto.joinSecret(shared);
-      assert.equal(secret, recovered);
-
-      delete shared[2];
-      recovered = Crypto.joinSecret(shared);
-      assert.notEqual(secret, recovered);
-
-      secret = "Some crazy secret";
-      parts = 2;
-      quorum = 2;
-
-      shared = Crypto.splitSecret(secret, parts, quorum);
-      recovered = Crypto.joinSecret(shared);
-      assert.equal(secret, recovered);
-
-      delete shared[1];
-      recovered = Crypto.joinSecret(shared);
-      assert.notEqual(secret, recovered);
-
-      secret = Crypto.generateKey(true);
-      shared = Crypto.splitSecret(secret, parts, quorum);
-      recovered = Crypto.joinSecret(shared, true);
-      assert.equal(secret.toString(), recovered.toString());
-    });
-  });
-
   describe("#fromTsToDate", async function () {
     it("should recover a date from a timestamp with microseconds", async function () {
       for (let i = 0; i < 20; i++) {
