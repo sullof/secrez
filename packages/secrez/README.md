@@ -402,6 +402,7 @@ Secrez is not intended to compete with password managers, so do not expect it to
 - add `editorProvider` hook for tests and improve `edit` command test reliability
 - strengthen password-based export encryption (`.secrez` files): new **v2** format uses PBKDF2 with a random salt stored in the file; password and iteration count are required at import (`-i`); legacy **v1** exports remain importable with password only
 - require Node.js 20 or later (`engines.node >=20.0.0`)
+- clear cryptographic secrets from memory on `signout`, `quit`, and double `^C` (best-effort buffer zeroing)
 
 **2.1.16**
 
@@ -941,17 +942,17 @@ Thank you for any contributions! 😉
 ## Test coverage
 
 ```
-  179 passing (24s)
+  180 passing (25s)
 
 --------------------|---------|----------|---------|---------|--------------------------------------
 File                | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                    
 --------------------|---------|----------|---------|---------|--------------------------------------
-All files           |    77.1 |    65.55 |   75.45 |   77.68 |                                      
+All files           |   77.12 |    65.53 |   75.45 |   77.69 |                                      
  src                |   59.66 |    52.38 |   63.15 |   60.16 |                                      
   Command.js        |   74.66 |    74.13 |   78.57 |   75.67 | ...5-62,73,80,93,127,164-172,179-182 
   PreCommand.js     |   17.14 |     3.84 |      20 |   17.14 | 11-86                                
   cliConfig.js      |     100 |      100 |     100 |     100 |                                      
- src/commands       |   86.46 |    73.24 |   91.59 |   86.38 |                                      
+ src/commands       |   86.47 |     73.2 |   91.59 |   86.39 |                                      
   Alias.js          |    88.6 |    78.68 |     100 |   88.46 | 101,112,139,169,173,180,190,213-214  
   Bash.js           |      75 |        0 |   66.66 |      75 | 18-19                                
   Cat.js            |   98.91 |    88.88 |     100 |   98.91 | 152                                  
@@ -975,7 +976,7 @@ All files           |    77.1 |    65.55 |   75.45 |   77.68 |
   Mv.js             |   86.59 |    71.66 |     100 |   86.31 | 93-99,133,155-156,165,175-182        
   Paste.js          |   84.61 |    70.83 |     100 |   84.61 | 72,78,81,89,113,130-131,139          
   Pwd.js            |    92.3 |      100 |     100 |    92.3 | 33                                   
-  Quit.js           |      90 |       50 |     100 |      90 | 27                                   
+  Quit.js           |   91.66 |       50 |     100 |   91.66 | 27                                   
   Rm.js             |    90.9 |       76 |     100 |   90.74 | 63,125-126,136,144                   
   Shell.js          |   86.66 |       40 |   88.88 |   86.66 | 15,21,65,82                          
   Show.js           |   72.54 |    45.45 |   57.14 |      74 | ...8,100,106-114,117,123-126,132,145 

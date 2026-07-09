@@ -35,17 +35,17 @@ API documentation
 ## Test coverage
 
 ```
-  34 passing (396ms)
+  34 passing (377ms)
   2 pending
 
 ----------|---------|----------|---------|---------|--------------------------------------
-File      | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s
+File      | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                    
 ----------|---------|----------|---------|---------|--------------------------------------
-All files |     100 |    88.88 |     100 |     100 |
- index.js |     100 |    88.88 |     100 |     100 | 33-44,77,103-114,194-198,223,388-392
+All files |     100 |    88.88 |     100 |     100 |                                      
+ index.js |     100 |    88.88 |     100 |     100 | 33-44,77,103-114,194-198,223,388-392 
 ----------|---------|----------|---------|---------|--------------------------------------
 
-> @secrez/crypto@1.0.6 posttest /Users/francescosullo/Projects/Secrez/secrez/packages/crypto
+> @secrez/crypto@1.0.7 posttest /Users/francescosullo/Projects/Secrez/secrez/packages/crypto
 > nyc check-coverage --statements 99 --branches 85 --functions 99 --lines 99
 
 

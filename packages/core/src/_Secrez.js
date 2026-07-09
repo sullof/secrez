@@ -6,6 +6,19 @@ const { RETURN_UINT8_ARRAY } = require("./config/booleans");
 const Crypto = require("@secrez/crypto");
 const bs64 = Crypto.bs64;
 
+function zeroSensitive(value) {
+  if (!value) {
+    return;
+  }
+  if (Buffer.isBuffer(value)) {
+    value.fill(0);
+    return;
+  }
+  if (value instanceof Uint8Array) {
+    value.fill(0);
+  }
+}
+
 module.exports = function () {
   const __ = {
     sharedKeys: {},
@@ -219,6 +232,36 @@ module.exports = function () {
         sortedData[prop] = obj[prop];
       }
       return sortedData;
+    }
+
+    clearSecrets() {
+      for (const key of [
+        "masterKeyArray",
+        "boxPrivateKey",
+        "signPrivateKey",
+        "boxPublicKey",
+        "signPublicKey",
+      ]) {
+        zeroSensitive(__[key]);
+        delete __[key];
+      }
+      for (const publicKey of Object.keys(__.sharedKeys)) {
+        zeroSensitive(__.sharedKeys[publicKey]);
+        delete __.sharedKeys[publicKey];
+      }
+      for (const key of [
+        "password",
+        "derivedPassword",
+        "masterKey",
+        "encryptedMasterKey",
+        "masterKeyHash",
+        "encryptedBoxPrivateKey",
+        "encryptedSignPrivateKey",
+        "iterations",
+      ]) {
+        delete __[key];
+      }
+      delete this.conf;
     }
   }
 

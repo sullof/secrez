@@ -17,14 +17,14 @@ This is a utils library used by other packages in the @secrez suite.
 ## Test coverage
 
 ```
-  38 passing (138ms)
+  38 passing (137ms)
 
 -------------|---------|----------|---------|---------|-------------------
-File         | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s
+File         | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
 -------------|---------|----------|---------|---------|-------------------
-All files    |   92.63 |    84.44 |   82.05 |   92.43 |
- UglyDate.js |     100 |    96.66 |     100 |     100 | 60
- index.js    |      90 |    78.33 |   80.55 |   89.62 | 126-128,257-280
+All files    |   92.63 |    84.44 |   82.05 |   92.43 |                   
+ UglyDate.js |     100 |    96.66 |     100 |     100 | 60                
+ index.js    |      90 |    78.33 |   80.55 |   89.62 | 126-128,257-280   
 -------------|---------|----------|---------|---------|-------------------
 ```
 

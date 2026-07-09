@@ -26,6 +26,9 @@ class Quit extends require("../Command") {
     if (options.help) {
       return this.showHelp();
     }
+    if (this.secrez.masterKeyHash) {
+      this.secrez.signout();
+    }
     /* istanbul ignore if  */
     // eslint-disable-next-line no-constant-condition
     if (process.env.NODE_ENV !== "test") {
