@@ -6,9 +6,7 @@ const inquirer = require("inquirer");
 // eslint-disable-next-line node/no-unpublished-require
 // const inquirerCommandPrompt = require('../../../../../inquirer-command-prompt')
 const inquirerCommandPrompt = require("inquirer-command-prompt");
-const multiEditorPrompt = require("./MultiEditorPrompt");
 inquirer.registerPrompt("command", inquirerCommandPrompt);
-inquirer.registerPrompt("multiEditor", multiEditorPrompt);
 
 const { sleep, getKeyValue } = require("@secrez/utils");
 const Completion = require("./Completion");

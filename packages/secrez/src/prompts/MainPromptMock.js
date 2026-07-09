@@ -46,6 +46,10 @@ class MainPromptMock {
 
   async run(options) {}
 
+  getRl() {
+    return { pause() {}, resume() {} };
+  }
+
   async exec(cmds, noRun) {}
 
   async loading() {}

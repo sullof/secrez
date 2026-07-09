@@ -1,36 +1,25 @@
 const { chalk } = require("./utils/Logger");
 const Crypto = require("@secrez/crypto");
+const { editInMemory } = require("./editor/MemoryEditor");
 
 class PreCommand {
   async useEditor(options) {
-    let message = "your OS default editor.";
-    if (options.internal) {
-      message = "the minimalistic internal editor.";
-    } else if (options.editor) {
-      message = `${options.editor}.`;
+    if (this.prompt.editorProvider) {
+      return this.prompt.editorProvider(options);
     }
-    let extraMessage =
-      chalk.dim("Press <enter> to launch ") +
-      message +
-      chalk.reset(
-        options.internal
-          ? chalk.green("\n  Ctrl-d to save the changes. Ctrl-c to abort.")
-          : ""
-      );
-    let { result } = await this.prompt.inquirer.prompt([
-      {
-        type: "multiEditor",
-        name: "result",
-        message: "Editing...",
-        default: options.content,
-        tempDir: this.cliConfig.tmpPath,
-        validate: function (text) {
-          return true;
-        },
-        extraMessage,
-      },
-    ]);
-    return result;
+
+    const rl = this.prompt.getRl && this.prompt.getRl();
+    if (rl) {
+      rl.pause();
+    }
+
+    try {
+      return await editInMemory(options.content || "");
+    } finally {
+      if (rl) {
+        rl.resume();
+      }
+    }
   }
 
   async useSelect(options) {
