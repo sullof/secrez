@@ -1,4 +1,29 @@
-const { execSync } = require("child_process");
+const { spawn } = require("child_process");
+
+function execShell(command, cwd) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, {
+      shell: true,
+      cwd,
+    });
+    let stdout = "";
+    let stderr = "";
+    child.stdout.on("data", (data) => {
+      stdout += data.toString("utf8");
+    });
+    child.stderr.on("data", (data) => {
+      stderr += data.toString("utf8");
+    });
+    child.on("close", (code) => {
+      if (code === 0) {
+        resolve(stdout);
+      } else {
+        reject(new Error(stderr.trim() || stdout.trim() || `Exit code ${code}`));
+      }
+    });
+    child.on("error", reject);
+  });
+}
 
 class Shell extends require("../Command") {
   setHelpAndCompletion() {
@@ -41,7 +66,7 @@ class Shell extends require("../Command") {
         })
       );
     }
-    return execSync(`cd ${pwd} && ${options.command}`).toString();
+    return execShell(options.command, pwd);
   }
 
   async exec(options = {}) {

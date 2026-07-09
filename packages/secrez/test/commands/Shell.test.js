@@ -47,4 +47,17 @@ describe("#Shell", function () {
     inspect.restore();
     assertConsole(inspect, "Some secret");
   });
+
+  it("should not interpret shell metacharacters in the working directory path", async function () {
+    let trickyDir = path.resolve(
+      __dirname,
+      "../../tmp/test/tricky; echo INJECTED",
+    );
+    await fs.ensureDir(trickyDir);
+    await fs.writeFile(path.join(trickyDir, "marker"), "safe\n");
+    await noPrint(C.lcd.exec({ path: trickyDir }));
+
+    let result = await C.shell.shell({ command: "cat marker" });
+    assert.equal(result, "safe\n");
+  });
 });

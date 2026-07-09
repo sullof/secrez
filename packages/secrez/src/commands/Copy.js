@@ -5,6 +5,18 @@ const { isYaml, yamlParse, TRUE, sleep, playMp3 } = require("@secrez/utils");
 const { Node } = require("@secrez/fs");
 const { execSync } = require("child_process");
 
+let clipboardQueue = Promise.resolve();
+
+function runClipboardTask(task) {
+  const next = clipboardQueue.then(task, task);
+  clipboardQueue = next.catch(() => {});
+  return next;
+}
+
+async function drainClipboardQueue() {
+  await clipboardQueue;
+}
+
 class Copy extends require("../Command") {
   setHelpAndCompletion() {
     this.cliConfig.completion.copy = {
