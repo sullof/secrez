@@ -64,7 +64,7 @@
   },
   "homepage": "https://github.com/secrez/secrez#readme",
   "engines": {
-    "node": ">=10.0.0"
+    "node": ">=20.0.0"
   },
   "gitHead": "42cbc519dd2802a1e03c6203bb724c726c2bfb79"
 }

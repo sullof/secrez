@@ -7,6 +7,16 @@ const commandLineArgs = require("command-line-args");
 
 const pkg = require("../package");
 
+const nodeMajor = parseInt(process.versions.node.split(".")[0], 10);
+if (nodeMajor < 20) {
+  console.error(
+    chalk.red(
+      `Secrez requires Node.js 20 or later (current: ${process.versions.node}).`
+    )
+  );
+  process.exit(1);
+}
+
 const MainPrompt = require("../src/prompts/MainPrompt");
 const Logger = require("../src/utils/Logger");
 // Check if the package was installed with pnpm (skip check in development)

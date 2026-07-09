@@ -89,7 +89,7 @@ Secrez uses [NaCl](https://github.com/dchest/tweetnacl-js) as its primary crypto
 
 ## How to install it
 
-Secrez requires at least Node 10. If you have installed a previous version, it may generate unclear errors and refuse to install or work properly. We recommend installing Node using nvm if possible. For more information, refer to [https://github.com/nvm-sh/nvm](https://github.com/nvm-sh/nvm).
+Secrez requires Node.js 20 or later. If you have installed an older version, it may generate unclear errors and refuse to install or work properly. We recommend installing Node using nvm if possible. For more information, refer to [https://github.com/nvm-sh/nvm](https://github.com/nvm-sh/nvm).
 
 Since this monorepo uses [Pnpm](https://pnpm.io/), it is better to install secrez using pnpm because the lock file will be used to avoid unexpected conflicts among modules. To install pnpm, run:
 
@@ -401,6 +401,7 @@ Secrez is not intended to compete with password managers, so do not expect it to
 - replace external editor with an in-memory editor for `edit`: secrets are no longer written to temporary files on disk; removed `-e`/`--editor` and `-i`/`--internal` options (the internal editor is now the only editor)
 - add `editorProvider` hook for tests and improve `edit` command test reliability
 - strengthen password-based export encryption (`.secrez` files): new **v2** format uses PBKDF2 with a random salt stored in the file; password and iteration count are required at import (`-i`); legacy **v1** exports remain importable with password only
+- require Node.js 20 or later (`engines.node >=20.0.0`)
 
 **2.1.16**
 
@@ -940,60 +941,63 @@ Thank you for any contributions! 😉
 ## Test coverage
 
 ```
-  1 passing (15s)
+  179 passing (24s)
 
---------------------|---------|----------|---------|---------|----------------------------------
-File                | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s
---------------------|---------|----------|---------|---------|----------------------------------
-All files           |   14.72 |     2.34 |   17.88 |   14.78 |
- src                |   25.42 |     6.25 |      15 |   25.64 |
-  Command.js        |      24 |     8.62 |   21.42 |   24.32 | 22-35,40-110,116,127,130-182
-  PreCommand.js     |    8.82 |        0 |       0 |    8.82 | 6-97
-  cliConfig.js      |     100 |      100 |     100 |     100 |
- src/commands       |   13.44 |      1.7 |   19.32 |   13.52 |
-  Alias.js          |    7.59 |        0 |      25 |    7.69 | 62-228
-  Bash.js           |    62.5 |        0 |   33.33 |    62.5 | 11-19
-  Cat.js            |   11.95 |        0 |   14.28 |   11.95 | 61-222
-  Cd.js             |   17.85 |        0 |      25 |   17.85 | 28-73
-  Conf.js           |     7.4 |        0 |      10 |     7.4 | 34-216
-  Contacts.js       |    5.73 |        0 |    7.69 |    5.78 | 53-284
-  Copy.js           |   10.98 |        0 |    12.5 |   11.11 | 71-268
-  Ds.js             |    5.55 |        0 |   16.66 |    5.63 | 39-170
-  Edit.js           |   11.76 |        0 |      20 |   11.76 | 61-222
-  Export.js         |    9.82 |        0 |   16.66 |    9.82 | 82-325
-  Find.js           |    7.69 |        0 |    8.33 |    7.89 | 63-211
-  Git.js            |   48.88 |    35.71 |      75 |   48.88 | 31,49-54,61,70-97,103,108,114
-  Help.js           |   33.33 |        0 |      50 |   33.33 | 26-43
-  Import.js         |    6.16 |        0 |    9.09 |    6.22 | 87-506
-  Lcat.js           |      30 |        0 |      25 |      30 | 35-65
-  Lcd.js            |   17.39 |        0 |      25 |   17.39 | 30-72
-  Lls.js            |   22.72 |        0 |      25 |   22.72 | 49-99
-  Lpwd.js           |   30.76 |        0 |      25 |   30.76 | 15-38
-  Ls.js             |    5.63 |        0 |      10 |    5.97 | 46-187
-  Mkdir.js          |   18.51 |        0 |      25 |   18.51 | 27-71
-  Mv.js             |    6.18 |        0 |   16.66 |    6.31 | 46-250
-  Paste.js          |   13.46 |        0 |      25 |   13.46 | 40-141
-  Pwd.js            |   30.76 |        0 |      25 |   30.76 | 15-35
-  Quit.js           |      50 |        0 |   33.33 |      50 | 19-40
-  Rm.js             |   14.54 |        0 |   16.66 |   14.81 | 36-147
-  Shell.js          |   29.41 |        0 |      25 |   29.41 | 25-57
-  Show.js           |   15.68 |        0 |   14.28 |      16 | 45-147
-  Ssh.js            |   22.22 |        0 |      20 |   22.22 | 49-120
-  Tag.js            |    8.41 |        0 |    9.09 |    8.49 | 66-246
-  Totp.js           |   13.59 |        0 |    9.09 |   13.59 | 76-327
-  Touch.js          |   14.54 |        0 |      25 |   14.81 | 75-245
-  Use.js            |   11.11 |        0 |      25 |   11.11 | 30-95
-  Ver.js            |      50 |        0 |   33.33 |      50 | 17-28
-  Whoami.js         |   27.77 |        0 |      20 |   27.77 | 20-50
-  index.js          |    87.5 |       50 |     100 |   86.95 | 15,22,31
- src/prompts        |   58.33 |        0 |      25 |   58.33 |
-  MainPromptMock.js |   58.33 |        0 |      25 |   58.33 | 22-44
- src/utils          |   15.89 |     6.86 |   10.25 |   15.62 |
-  AliasManager.js   |    5.88 |        0 |       0 |    5.88 | 3-48
-  ContactManager.js |    6.66 |        0 |       0 |    6.66 | 3-44
-  HelpProto.js      |     4.2 |        0 |   16.66 |    4.27 | 11-200
-  Logger.js         |   54.54 |    43.75 |   15.78 |   53.48 | 8,12,16-57,65-69,74,84,88,93,105
---------------------|---------|----------|---------|---------|----------------------------------
+--------------------|---------|----------|---------|---------|--------------------------------------
+File                | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                    
+--------------------|---------|----------|---------|---------|--------------------------------------
+All files           |    77.1 |    65.55 |   75.45 |   77.68 |                                      
+ src                |   59.66 |    52.38 |   63.15 |   60.16 |                                      
+  Command.js        |   74.66 |    74.13 |   78.57 |   75.67 | ...5-62,73,80,93,127,164-172,179-182 
+  PreCommand.js     |   17.14 |     3.84 |      20 |   17.14 | 11-86                                
+  cliConfig.js      |     100 |      100 |     100 |     100 |                                      
+ src/commands       |   86.46 |    73.24 |   91.59 |   86.38 |                                      
+  Alias.js          |    88.6 |    78.68 |     100 |   88.46 | 101,112,139,169,173,180,190,213-214  
+  Bash.js           |      75 |        0 |   66.66 |      75 | 18-19                                
+  Cat.js            |   98.91 |    88.88 |     100 |   98.91 | 152                                  
+  Cd.js             |   96.42 |    86.66 |     100 |   96.42 | 44                                   
+  Conf.js           |      10 |        0 |   22.22 |      10 | 47-197                               
+  Contacts.js       |   86.06 |     75.6 |     100 |   85.95 | ...5,165,172,184,237,250,260,268-269 
+  Copy.js           |    87.5 |    71.92 |   72.72 |   87.36 | ...7,127,178,195,217-222,237-238,265 
+  Ds.js             |   90.27 |     82.6 |     100 |   90.14 | 99,108-113,125,147-148               
+  Edit.js           |   71.18 |       65 |     100 |   71.18 | 63,69,78,89-97,134-148               
+  Export.js         |   85.71 |    71.76 |   85.71 |   85.71 | ...4,232-236,241,253,262,265,269-283 
+  Find.js           |    90.3 |    74.16 |     100 |   90.12 | ...3,282-302,371,423-426,441-444,451 
+  Git.js            |   88.88 |    80.95 |     100 |   88.88 | 61,73,81,88,114                      
+  Help.js           |     100 |       80 |     100 |     100 | 29                                   
+  Import.js         |   89.95 |    82.14 |   91.66 |   89.86 | ...4,414,420,468,484-485,493-500,527 
+  Lcat.js           |     100 |    85.71 |     100 |     100 | 54                                   
+  Lcd.js            |   95.65 |    81.81 |     100 |   95.65 | 50                                   
+  Lls.js            |   95.45 |    72.72 |     100 |   95.45 | 97                                   
+  Lpwd.js           |    92.3 |      100 |     100 |    92.3 | 36                                   
+  Ls.js             |   91.54 |    76.31 |     100 |   91.04 | 103,114-116,130,185                  
+  Mkdir.js          |   92.59 |       60 |     100 |   92.59 | 56-57                                
+  Mv.js             |   86.59 |    71.66 |     100 |   86.31 | 93-99,133,155-156,165,175-182        
+  Paste.js          |   84.61 |    70.83 |     100 |   84.61 | 72,78,81,89,113,130-131,139          
+  Pwd.js            |    92.3 |      100 |     100 |    92.3 | 33                                   
+  Quit.js           |      90 |       50 |     100 |      90 | 27                                   
+  Rm.js             |    90.9 |       76 |     100 |   90.74 | 63,125-126,136,144                   
+  Shell.js          |   86.66 |       40 |   88.88 |   86.66 | 15,21,65,82                          
+  Show.js           |   72.54 |    45.45 |   57.14 |      74 | ...8,100,106-114,117,123-126,132,145 
+  Ssh.js            |      78 |    57.69 |   85.71 |      78 | 87,95,100,129,133,141-148            
+  Tag.js            |   96.26 |    91.37 |     100 |   96.22 | 122,171,204-205                      
+  Totp.js           |   92.23 |       75 |     100 |   92.23 | 189-190,230,240,282-287,301-302      
+  Touch.js          |   96.36 |    80.64 |     100 |   96.29 | 164,240                              
+  Use.js            |   91.66 |    86.95 |     100 |   91.66 | 68,83-84                             
+  Ver.js            |      90 |    66.66 |     100 |      90 | 25                                   
+  Whoami.js         |   83.33 |       60 |      80 |   83.33 | 27,35,48                             
+  index.js          |    87.5 |       50 |     100 |   86.95 | 15,22,31                             
+ src/editor         |    4.72 |        0 |       0 |    5.21 |                                      
+  MemoryEditor.js   |    4.51 |        0 |       0 |    5.16 | 16-34,39-275                         
+  onKeypress.js     |    5.19 |        0 |       0 |    5.33 | 14-125                               
+ src/prompts        |      72 |    33.33 |   36.36 |      72 |                                      
+  MainPromptMock.js |      72 |    33.33 |   36.36 |      72 | 29-35,44-50                          
+ src/utils          |   83.07 |    78.43 |   66.66 |   82.81 |                                      
+  AliasManager.js   |     100 |    91.66 |     100 |     100 | 47                                   
+  ContactManager.js |   73.33 |       60 |   85.71 |   73.33 | 12,34-36                             
+  HelpProto.js      |   89.07 |     82.6 |     100 |   88.88 | 49,135-137,153-154,171-176,195       
+  Logger.js         |   63.63 |    56.25 |   36.84 |   62.79 | ...25,37-49,57,65-69,74,84,88,93,105 
+--------------------|---------|----------|---------|---------|--------------------------------------
 ```
 
 ## Copyright
