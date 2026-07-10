@@ -278,6 +278,16 @@ describe("#Crypto", function () {
       assert.equal(msg, decrypted);
     });
 
+    it("should decrypt box messages passed as Uint8Array", function () {
+      const msg = "Some message";
+      const encrypted = Crypto.boxEncrypt(sharedA, msg);
+      const decrypted = Crypto.boxDecrypt(
+        sharedB,
+        Crypto.bs64.decode(encrypted)
+      );
+      assert.equal(msg, decrypted);
+    });
+
     it("should throw if the encrypted data is wrong", async function () {
       const key = Crypto.generateKey(true);
       const msg = "Some message";

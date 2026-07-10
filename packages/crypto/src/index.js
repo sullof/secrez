@@ -324,11 +324,14 @@ class Crypto {
   }
 
   static boxDecrypt(secretOrSharedKey, messageWithNonce, key, codec = "bs64") {
-    const messageWithNonceAsUint8Array = Crypto[codec].decode(messageWithNonce);
+    const messageWithNonceAsUint8Array =
+      typeof messageWithNonce === "string"
+        ? Crypto[codec].decode(messageWithNonce)
+        : messageWithNonce;
     const nonce = messageWithNonceAsUint8Array.slice(0, box.nonceLength);
     const message = messageWithNonceAsUint8Array.slice(
       box.nonceLength,
-      messageWithNonce.length
+      messageWithNonceAsUint8Array.length
     );
     const keyUint8Array =
       typeof key === "string" ? Crypto.hexToUint8Array(key) : key;
