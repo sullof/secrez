@@ -1,0 +1,22 @@
+---
+description: Never bump package versions manually in this monorepo
+alwaysApply: true
+---
+
+# Package version bumps
+
+Do **not** change `version` fields in any `package.json`, workspace dependency ranges (`workspace:~x.y.z`), or companion version lines in README histories to reflect a new release.
+
+Version bumps are done **only** by the maintainer, manually, via:
+
+```bash
+node bin/patch-versions.js
+```
+
+When implementing fixes:
+
+- Update **code**, **tests**, and **README history bullets** (describe the change under the current unpublished version section).
+- Do **not** increment semver in `package.json` or `workspace:~` specifiers.
+- Do **not** add a new `**x.y.z**` history section for a version that does not exist yet.
+
+The maintainer runs `patch-versions.js` before publish to align versions across packages.

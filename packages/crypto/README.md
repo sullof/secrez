@@ -16,6 +16,7 @@ API documentation
 
 - fix `boxDecrypt` to slice ciphertext using the decoded buffer length instead of the encoded string length; accept `Uint8Array` input like `decrypt()` (ENC-3)
 - replace fragile URL-safe base64 padding loop in `fromFsSafeBase64ToBase64` with standard `while (length % 4)` restoration (ENC-5); output unchanged for valid Secrez data
+- deprecate `seedFromPassphrase()` via `util.deprecate` + JSDoc (CUST-1): single SHA3 is not a password KDF — prefer `deriveKey()` with PBKDF2 and a random salt; return value unchanged
 
 **1.0.6**
 
@@ -40,14 +41,14 @@ API documentation
 ## Test coverage
 
 ```
-  36 passing (399ms)
+  36 passing (594ms)
   2 pending
 
 ----------|---------|----------|---------|---------|--------------------------------------
 File      | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                    
 ----------|---------|----------|---------|---------|--------------------------------------
 All files |     100 |    89.13 |     100 |     100 |                                      
- index.js |     100 |    89.13 |     100 |     100 | 33-44,77,103-114,194-198,223,391-395 
+ index.js |     100 |    89.13 |     100 |     100 | 34-45,78,104-115,195-199,224,398-402 
 ----------|---------|----------|---------|---------|--------------------------------------
 
 > @secrez/crypto@1.0.7 posttest /Users/francescosullo/Projects/Secrez/secrez/packages/crypto

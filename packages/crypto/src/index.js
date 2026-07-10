@@ -1,4 +1,5 @@
 const crypto = require("crypto");
+const { deprecate } = require("util");
 const { Keccak } = require("sha3");
 const basex = require("base-x");
 const { bytesToBase64, base64ToBytes } = require("byte-base64");
@@ -252,6 +253,12 @@ class Crypto {
     }
   }
 
+  /**
+   * @deprecated Insecure for password-based keys: uses a single SHA3 hash, not a
+   *   password KDF. Kept for backward compatibility; Secrez does not use this in
+   *   production. Prefer {@link Crypto.deriveKey} with PBKDF2 and a random salt.
+   *   Planned removal in a future major release.
+   */
   static seedFromPassphrase(passphrase) {
     if (typeof passphrase === "string" && passphrase.length > 0) {
       return Uint8Array.from(Crypto.SHA3(passphrase));
@@ -452,5 +459,12 @@ Crypto.bs64 = {
 };
 
 Crypto.randomBytes = randomBytes;
+
+Crypto.seedFromPassphrase = deprecate(
+  Crypto.seedFromPassphrase,
+  "Crypto.seedFromPassphrase() is deprecated: a single SHA3 hash is not a secure password KDF. " +
+    "Use Crypto.deriveKey() with PBKDF2 and a random salt instead. " +
+    "This API will be removed in a future major release."
+);
 
 module.exports = Crypto;

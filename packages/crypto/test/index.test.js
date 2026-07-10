@@ -316,20 +316,32 @@ describe("#Crypto", function () {
     });
 
     it("should derive a valid seed from a passphrase", async function () {
-      let seed = Crypto.seedFromPassphrase(passphrase);
-      assert.isTrue(Crypto.isUint8Array(seed));
-      assert.equal(seed.length, 32);
-
+      const warnings = [];
+      const originalEmitWarning = process.emitWarning;
+      process.emitWarning = function (warning, type, code, ctor) {
+        warnings.push({ warning, type, code });
+        return originalEmitWarning.call(this, warning, type, code, ctor);
+      };
       try {
-        Crypto.seedFromPassphrase(234);
-      } catch (e) {
-        assert.equal(e.message, "Not a valid string");
-      }
+        let seed = Crypto.seedFromPassphrase(passphrase);
+        assert.isTrue(Crypto.isUint8Array(seed));
+        assert.equal(seed.length, 32);
+        assert.isAtLeast(warnings.length, 1);
+        assert.match(String(warnings[0].warning), /seedFromPassphrase/i);
 
-      try {
-        Crypto.seedFromPassphrase("");
-      } catch (e) {
-        assert.equal(e.message, "Not a valid string");
+        try {
+          Crypto.seedFromPassphrase(234);
+        } catch (e) {
+          assert.equal(e.message, "Not a valid string");
+        }
+
+        try {
+          Crypto.seedFromPassphrase("");
+        } catch (e) {
+          assert.equal(e.message, "Not a valid string");
+        }
+      } finally {
+        process.emitWarning = originalEmitWarning;
       }
     });
 
