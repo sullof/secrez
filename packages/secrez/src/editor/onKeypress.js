@@ -1,5 +1,7 @@
 "use strict";
 
+/* istanbul ignore file -- keypress helper for MemoryEditor; not unit-tested in CI */
+
 const { StringDecoder } = require("string_decoder");
 
 // Adapted from prompt-skeleton / keypress (MIT). See MemoryEditor.js for attribution.

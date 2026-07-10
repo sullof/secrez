@@ -329,6 +329,27 @@ describe("#Secrez", function () {
         assert.equal(content, secrez.decryptEntry(encryptedData).content);
       });
 
+      it("should decrypt content-only entry with the bound timestamp", async function () {
+        await secrez.signup(password, iterations);
+        const name = "some random data";
+        const content = "some random content";
+        const id = Crypto.getRandomId();
+        const encryptedData = secrez.encryptEntry(
+          new Entry({ id, type: F, name, content })
+        );
+        const { ts } = encryptedData.get(["ts"]);
+        encryptedData.set({
+          nameId: id,
+          nameTs: ts,
+        });
+        encryptedData.unset(["encryptedName"]);
+        const decryptedData = secrez.decryptEntry(encryptedData);
+        assert.equal(id, decryptedData.id);
+        assert.equal(ts, decryptedData.ts);
+        assert.notEqual(decryptedData.ts, decryptedData.id);
+        assert.equal(content, decryptedData.content);
+      });
+
       it("should re-encrypt the content and decrypt it", async function () {
         await secrez.signup(password, iterations);
         let name = "some random data";

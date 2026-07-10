@@ -6,18 +6,18 @@ class PreCommand {
   async useEditor(options) {
     if (this.prompt.editorProvider) {
       return this.prompt.editorProvider(options);
-    }
-
-    const rl = this.prompt.getRl && this.prompt.getRl();
-    if (rl) {
-      rl.pause();
-    }
-
-    try {
-      return await editInMemory(options.content || "");
-    } finally {
+    } /* istanbul ignore next */ else {
+      const rl = this.prompt.getRl && this.prompt.getRl();
       if (rl) {
-        rl.resume();
+        rl.pause();
+      }
+
+      try {
+        return await editInMemory(options.content || "");
+      } finally {
+        if (rl) {
+          rl.resume();
+        }
       }
     }
   }

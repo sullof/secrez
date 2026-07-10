@@ -2,7 +2,7 @@ const chai = require("chai");
 const expect = chai.expect;
 const Eth = require("../src"); // import the Eth class from the file
 
-describe.only("#Eth", async () => {
+describe("#Eth", async () => {
   let wallet;
 
   // from hardhat

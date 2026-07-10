@@ -203,4 +203,37 @@ describe("#Totp", function () {
       assert.isTrue(false);
     }
   });
+
+  it("should read clipboard png via xclip without shell interpolation", async function () {
+    const childProcess = require("child_process");
+    const originalSpawn = childProcess.spawn;
+    let spawnArgs;
+    childProcess.spawn = function (cmd, args) {
+      spawnArgs = { cmd, args };
+      const { EventEmitter } = require("events");
+      const child = new EventEmitter();
+      child.stdout = new EventEmitter();
+      process.nextTick(() => {
+        child.stdout.emit("data", Buffer.from("png"));
+        child.emit("close", 0);
+      });
+      return child;
+    };
+    try {
+      const outputPath = path.join(prompt.secrez.config.tmpPath, "image.png");
+      await C.totp.writeClipboardPngToFile(outputPath);
+      assert.equal(spawnArgs.cmd, "xclip");
+      assert.deepEqual(spawnArgs.args, [
+        "-selection",
+        "clipboard",
+        "-t",
+        "image/png",
+        "-o",
+      ]);
+      assert.isTrue(await fs.pathExists(outputPath));
+      assert.equal((await fs.readFile(outputPath)).toString(), "png");
+    } finally {
+      childProcess.spawn = originalSpawn;
+    }
+  });
 });

@@ -26,13 +26,14 @@ class Quit extends require("../Command") {
     if (options.help) {
       return this.showHelp();
     }
-    if (this.secrez.masterKeyHash) {
-      this.secrez.signout();
-    }
+    const wasLoggedIn = Boolean(this.secrez.masterKeyHash);
     /* istanbul ignore if  */
     // eslint-disable-next-line no-constant-condition
     if (process.env.NODE_ENV !== "test") {
-      await this.prompt.saveHistory();
+      if (wasLoggedIn) {
+        await this.prompt.saveHistory();
+        this.secrez.signout();
+      }
       this.Logger.bold(
         "Clear or close the terminal. If not, your history will be visible scrolling up."
       );
@@ -40,6 +41,9 @@ class Quit extends require("../Command") {
       /*eslint-disable-next-line*/
       process.exit(0);
     } else {
+      if (wasLoggedIn) {
+        this.secrez.signout();
+      }
       this.Logger.reset("Bye bye :o)");
     }
   }

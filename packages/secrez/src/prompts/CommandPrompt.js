@@ -11,6 +11,7 @@ inquirer.registerPrompt("command", inquirerCommandPrompt);
 const { sleep, getKeyValue } = require("@secrez/utils");
 const Completion = require("./Completion");
 const { FsUtils } = require("@secrez/fs");
+const { VaultPermissions } = require("@secrez/core");
 const Logger = require("../utils/Logger");
 const cliConfig = require("../cliConfig");
 const sigintManager = require("./SigintManager");
@@ -146,7 +147,7 @@ class CommandPrompt {
   async saveHistory() {
     let histories = JSON.stringify(inquirerCommandPrompt.getHistories(true));
     let encryptedHistory = this.secrez.encryptData(histories);
-    await fs.writeFile(this.historyPath, encryptedHistory);
+    await VaultPermissions.writeFile(this.historyPath, encryptedHistory);
   }
 
   async loadSavedHistory() {

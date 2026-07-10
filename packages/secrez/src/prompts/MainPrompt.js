@@ -2,6 +2,7 @@ const chalk = require("chalk");
 const _ = require("lodash");
 const path = require("path");
 const { InternalFs, ExternalFs, DataCache } = require("@secrez/fs");
+const { VaultPermissions } = require("@secrez/core");
 const Logger = require("../utils/Logger");
 const cliConfig = require("../cliConfig");
 const Commands = require("../commands");
@@ -35,6 +36,7 @@ class MainPrompt extends require("./CommandPrompt") {
   async preRun(options = {}) {
     if (!this.loggedIn) {
       await welcome.start(this.secrez, options);
+      await VaultPermissions.secureVaultIfNeeded(this.secrez.config);
       this.startSigintManager();
       this.internalFs.init().then(() => delete this.showLoading);
       this.loadingMessage = "Initializing";

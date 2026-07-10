@@ -1,3 +1,4 @@
+const crypto = require("crypto");
 const _ = require("lodash");
 const fs = require("fs-extra");
 const isBinaryFile = require("isbinaryfile").isBinaryFile;
@@ -222,14 +223,15 @@ const utils = {
   },
 
   secureCompare(a, b) {
-    if (!a || !b || a.length !== b.length) {
+    if (a == null || b == null) {
       return false;
     }
-    let match = true;
-    for (let i = 0; i < a.length; i++) {
-      match = match && a[i] === b[i];
+    const bufA = Buffer.isBuffer(a) ? a : Buffer.from(a);
+    const bufB = Buffer.isBuffer(b) ? b : Buffer.from(b);
+    if (bufA.length !== bufB.length) {
+      return false;
     }
-    return match;
+    return crypto.timingSafeEqual(bufA, bufB);
   },
 
   async isBinary(fileFullPath) {

@@ -1,7 +1,12 @@
 const fs = require("fs-extra");
 const path = require("path");
 const Node = require("./Node");
-const { config, Entry, ConfigUtils } = require("@secrez/core");
+const {
+  config,
+  Entry,
+  ConfigUtils,
+  VaultPermissions,
+} = require("@secrez/core");
 const Crypto = require("@secrez/crypto");
 
 class Tree {
@@ -454,7 +459,7 @@ class Tree {
         ? (entry.encryptedContent || "") +
           (entry.extraName ? "$" + entry.extraName : "")
         : "";
-    await fs.writeFile(fullPath, encryptedContent);
+    await VaultPermissions.writeFile(fullPath, encryptedContent);
     return entry;
   }
 
@@ -637,7 +642,7 @@ class Tree {
         type: config.types.NAME,
       });
       let encryptedEntry = this.secrez.encryptEntry(entry);
-      await fs.writeFile(
+      await VaultPermissions.writeFile(
         path.join(this.dataPath, encryptedEntry.encryptedName),
         ""
       );

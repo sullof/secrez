@@ -10,6 +10,11 @@ API documentation
 
 ## History
 
+**0.0.6**
+
+- replace deprecated `ethereumjs-util` with `ethers.getAddress()` in `equals()`
+- require Node.js 20 or later (`engines.node >=20.0.0`)
+
 **0.0.2**
 
 - add functions to explicitly produce a keystore file

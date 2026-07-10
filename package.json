@@ -15,7 +15,8 @@
     "README": "echo 'For new versions, run patch-versions and pre-push before pushing to the repo. Then, in the main branch, run publish-changed to publish the packages with new versions.'",
     "patch-versions": "node bin/patch-versions.js",
     "pre-push": "npm run format && node bin/pre-push.js",
-    "publish-changed": "node bin/publish-changed-packages.js"
+    "publish-changed": "node bin/publish-changed-packages.js",
+    "patch-for-push": "npm run reset && npm run patch-versions && npm run pre-push"
   },
   "devDependencies": {
     "eslint": "^7.32.0",

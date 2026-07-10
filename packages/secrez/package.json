@@ -1,12 +1,12 @@
 {
   "name": "secrez",
-  "version": "2.2.0",
+  "version": "2.2.0-beta.1",
   "license": "MIT",
   "scripts": {
     "dev": "cross-env NODE_ENV=dev bin/secrez.js -c `pwd`/tmp/secrez-dev -i 1e3 -l `pwd`/tmp",
     "test-only": "cross-env NODE_ENV=test ./node_modules/.bin/mocha test/*.test.js test/**/*.test.js test/**/**/*.js --exit",
     "test": "cross-env NODE_ENV=test nyc --reporter=lcov --reporter=text mocha test/*.test.js test/**/*.test.js test/**/**/*.js --exit",
-    "posttest": "nyc check-coverage --statements 65 --branches 50 --functions 65 --lines 65",
+    "posttest": "nyc check-coverage --statements 85 --branches 73 --functions 85 --lines 85",
     "build-helpers": "cd test/helpers/os && ./build.sh",
     "preinstall": "node scripts/preinstall.js"
   },
@@ -19,21 +19,20 @@
     "@secrez/crypto": "workspace:~1.0.7",
     "@secrez/eth": "workspace:~0.0.6",
     "@secrez/fs": "workspace:~1.0.9",
-    "@secrez/utils": "workspace:~1.0.6",
+    "@secrez/utils": "workspace:~1.0.7",
     "case": "^1.6.3",
     "chalk": "^3.0.0",
     "clipboardy": "^2.3.0",
     "command-line-args": "^5.2.1",
     "ansi-escapes": "^4.3.2",
     "fs-extra": "^9.1.0",
-    "homedir": "^0.6.0",
     "inquirer": "^7.3.3",
     "inquirer-command-prompt": "^0.1.0",
-    "jimp": "^0.13.0",
+    "jimp": "^1.6.0",
+    "jsqr": "^1.4.0",
     "lodash": "^4.17.21",
     "otplib": "^12.0.1",
-    "qrcode": "^1.5.4",
-    "qrcode-reader": "^1.0.4"
+    "qrcode": "^1.5.4"
   },
   "devDependencies": {
     "@secrez/test-helpers": "workspace:~2.0.3",

@@ -1,8 +1,9 @@
-const homedir = require("homedir");
+const { homedir } = require("os");
 const fs = require("fs-extra");
 const _ = require("lodash");
 const Crypto = require("@secrez/crypto");
 const ConfigUtils = require("./config/ConfigUtils");
+const VaultPermissions = require("./config/VaultPermissions");
 const Entry = require("./Entry");
 
 const { DO_NOT_VERIFY, URL_SAFE } = require("./config/booleans");
@@ -97,7 +98,10 @@ module.exports = function () {
 
     async signAndSave(data) {
       const conf = _secrez.signData(data);
-      await fs.writeFile(this.config.keysPath, JSON.stringify(conf));
+      await VaultPermissions.writeFile(
+        this.config.keysPath,
+        JSON.stringify(conf)
+      );
       return conf;
     }
 
@@ -332,7 +336,7 @@ module.exports = function () {
 
           let decryptedEntry = new Entry({
             id: e.i,
-            ts: e.i,
+            ts: e.t,
             content: e.c,
           });
 

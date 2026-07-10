@@ -1,4 +1,3 @@
-const { toChecksumAddress } = require("ethereumjs-util");
 const ethers = require("ethers");
 const bip39 = require("bip39");
 const hdkey = require("hdkey");
@@ -45,7 +44,7 @@ class Eth {
   }
 
   static equals(address1, address2) {
-    return toChecksumAddress(address1) === toChecksumAddress(address2);
+    return ethers.getAddress(address1) === ethers.getAddress(address2);
   }
 }
 

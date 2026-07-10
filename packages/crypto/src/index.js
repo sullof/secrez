@@ -1,4 +1,5 @@
 const crypto = require("crypto");
+const { deprecate } = require("util");
 const { Keccak } = require("sha3");
 const basex = require("base-x");
 const { bytesToBase64, base64ToBytes } = require("byte-base64");
@@ -252,6 +253,12 @@ class Crypto {
     }
   }
 
+  /**
+   * @deprecated Insecure for password-based keys: uses a single SHA3 hash, not a
+   *   password KDF. Kept for backward compatibility; Secrez does not use this in
+   *   production. Prefer {@link Crypto.deriveKey} with PBKDF2 and a random salt.
+   *   Planned removal in a future major release.
+   */
   static seedFromPassphrase(passphrase) {
     if (typeof passphrase === "string" && passphrase.length > 0) {
       return Uint8Array.from(Crypto.SHA3(passphrase));
@@ -324,11 +331,14 @@ class Crypto {
   }
 
   static boxDecrypt(secretOrSharedKey, messageWithNonce, key, codec = "bs64") {
-    const messageWithNonceAsUint8Array = Crypto[codec].decode(messageWithNonce);
+    const messageWithNonceAsUint8Array =
+      typeof messageWithNonce === "string"
+        ? Crypto[codec].decode(messageWithNonce)
+        : messageWithNonce;
     const nonce = messageWithNonceAsUint8Array.slice(0, box.nonceLength);
     const message = messageWithNonceAsUint8Array.slice(
       box.nonceLength,
-      messageWithNonce.length
+      messageWithNonceAsUint8Array.length
     );
     const keyUint8Array =
       typeof key === "string" ? Crypto.hexToUint8Array(key) : key;
@@ -424,7 +434,9 @@ class Crypto {
   }
 
   static fromFsSafeBase64ToBase64(safeBase64) {
-    for (let i = 1; i < safeBase64.length % 4; i++) safeBase64 += "=";
+    while (safeBase64.length % 4 !== 0) {
+      safeBase64 += "=";
+    }
     return safeBase64.replace(/[-_]/g, (m) => SAFE_DEC[m]);
   }
 }
@@ -447,5 +459,12 @@ Crypto.bs64 = {
 };
 
 Crypto.randomBytes = randomBytes;
+
+Crypto.seedFromPassphrase = deprecate(
+  Crypto.seedFromPassphrase,
+  "Crypto.seedFromPassphrase() is deprecated: a single SHA3 hash is not a secure password KDF. " +
+    "Use Crypto.deriveKey() with PBKDF2 and a random salt instead. " +
+    "This API will be removed in a future major release."
+);
 
 module.exports = Crypto;

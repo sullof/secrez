@@ -34,6 +34,7 @@ logs
 *_temp
 db
 
+.cursor
 
 .nyc_output
 report.20*

@@ -198,12 +198,13 @@ describe("#Touch", function () {
 
   it("should create a file and generate a wallet", async function () {
     let p = "/folder2/file1";
-    await noPrint(
-      C.touch.exec({
-        path: p,
-        generateWallet: true,
-      })
-    );
+    inspect = stdout.inspect();
+    await C.touch.exec({
+      path: p,
+      generateWallet: true,
+    });
+    inspect.restore();
+    assertConsole(inspect, 'New file "/folder2/file1" created.');
     const content = yamlParse(
       prompt.internalFs.tree.root.getChildFromPath(p).getContent()
     );
@@ -214,13 +215,15 @@ describe("#Touch", function () {
 
   it("should generate 5 prefixed wallet", async function () {
     let p = "/folder2/file1";
-    // await noPrint(
+    inspect = stdout.inspect();
     await C.touch.exec({
       path: p,
       generateWallet: true,
       amount: 5,
       prefix: "test",
     });
+    inspect.restore();
+    assertConsole(inspect, 'New file "/folder2/file1" created.');
     const content = yamlParse(
       prompt.internalFs.tree.root.getChildFromPath(p).getContent()
     );
@@ -234,14 +237,15 @@ describe("#Touch", function () {
 
   it("should generate a wallet with mnemonic and 2 keys", async function () {
     let p = "/folder2/file1";
-    await // noPrint(
-    C.touch.exec({
+    inspect = stdout.inspect();
+    await C.touch.exec({
       path: p,
       generateWallet: true,
       includeMnemonic: true,
       amount: 2,
     });
-    // );
+    inspect.restore();
+    assertConsole(inspect, 'New file "/folder2/file1" created.');
     const content = yamlParse(
       prompt.internalFs.tree.root.getChildFromPath(p).getContent()
     );
