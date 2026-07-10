@@ -427,7 +427,9 @@ class Crypto {
   }
 
   static fromFsSafeBase64ToBase64(safeBase64) {
-    for (let i = 1; i < safeBase64.length % 4; i++) safeBase64 += "=";
+    while (safeBase64.length % 4 !== 0) {
+      safeBase64 += "=";
+    }
     return safeBase64.replace(/[-_]/g, (m) => SAFE_DEC[m]);
   }
 }

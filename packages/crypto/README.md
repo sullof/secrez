@@ -14,7 +14,8 @@ API documentation
 
 **1.0.7**
 
-- fix `boxDecrypt` to slice ciphertext using the decoded buffer length instead of the encoded string length; accept `Uint8Array` input like `decrypt()`
+- fix `boxDecrypt` to slice ciphertext using the decoded buffer length instead of the encoded string length; accept `Uint8Array` input like `decrypt()` (ENC-3)
+- replace fragile URL-safe base64 padding loop in `fromFsSafeBase64ToBase64` with standard `while (length % 4)` restoration (ENC-5); output unchanged for valid Secrez data
 
 **1.0.6**
 
@@ -39,7 +40,7 @@ API documentation
 ## Test coverage
 
 ```
-  35 passing (381ms)
+  36 passing (586ms)
   2 pending
 
 ----------|---------|----------|---------|---------|--------------------------------------

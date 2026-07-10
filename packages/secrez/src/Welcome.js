@@ -4,6 +4,8 @@ const fs = require("fs-extra");
 const Crypto = require("@secrez/crypto");
 const Logger = require("./utils/Logger");
 
+const LOW_ITERATIONS_WARNING_THRESHOLD = 100000;
+
 class Welcome {
   async start(secrez, options) {
     this.secrez = secrez;
@@ -65,6 +67,31 @@ Thanks.`);
     return parseInt(iterations);
   }
 
+  async confirmLowIterations(iterations) {
+    if (iterations >= LOW_ITERATIONS_WARNING_THRESHOLD) {
+      return true;
+    }
+    Logger.yellow(
+      chalk.bold(`
+Warning: you chose fewer than ${LOW_ITERATIONS_WARNING_THRESHOLD.toLocaleString()} iterations.
+`)
+    );
+    Logger.yellow(
+      `Secrez does not salt the KDF with the password alone: the iteration count is mixed into the salt, which makes offline attacks significantly slower than with a typical password-only salt.
+
+We recommend 500,000–1,000,000 iterations for most setups. A random per-account salt is planned for a future release.`
+    );
+    const { proceed } = await inquirer.prompt([
+      {
+        name: "proceed",
+        type: "confirm",
+        message: "Continue signup with this iteration count?",
+        default: false,
+      },
+    ]);
+    return proceed;
+  }
+
   // chimney piano fabric forest curious black hip axis story stool spoil fold
   async saveIterations() {
     if (this.options.saveIterations) {
@@ -107,6 +134,11 @@ Thanks.`);
   async signup() {
     for (;;) {
       try {
+        if (!(await this.confirmLowIterations(this.iterations))) {
+          delete this.options.iterations;
+          this.iterations = await this.getIterations();
+          continue;
+        }
         let p = await inquirer.prompt([
           {
             name: "password",
@@ -152,4 +184,7 @@ Thanks.`);
   }
 }
 
-module.exports = new Welcome();
+const welcome = new Welcome();
+welcome.LOW_ITERATIONS_WARNING_THRESHOLD = LOW_ITERATIONS_WARNING_THRESHOLD;
+
+module.exports = welcome;

@@ -111,7 +111,7 @@ To get started with Secrez, simply run the command:
 secrez
 ```
 
-Upon first launch, Secrez will prompt you to enter a master password and the number of iterations. The number of iterations is used to derive a master key from your password, so the higher the number, the more secure your data will be. It's recommended to use between 500,000 and 1,000,000 iterations, but you can customize this based on your needs. For example, you can set the number of iterations explicitly by running:
+Upon first launch, Secrez will prompt you to enter a master password and the number of iterations. The number of iterations is used to derive a master key from your password, so the higher the number, the more secure your data will be. It's recommended to use between 500,000 and 1,000,000 iterations, but you can customize this based on your needs. At signup, if you choose fewer than 100,000 iterations, Secrez shows a warning and asks for confirmation before proceeding (the threshold is lower than the recommended range because Secrez mixes the iteration count into the KDF salt, not just the password). For example, you can set the number of iterations explicitly by running:
 
 ```
 secrez -i 1023896
@@ -405,7 +405,8 @@ Secrez is not intended to compete with password managers, so do not expect it to
 - clear cryptographic secrets from memory on `signout`, `quit`, and double `^C` (best-effort buffer zeroing)
 - replace deprecated dependencies: `homedir` → `os.homedir`, `ethereumjs-util` → `ethers.getAddress`, `qrcode-reader` → `jsqr`, upgrade `jimp` to 1.x
 - harden `totp --from-clipboard` on Linux: run `xclip` with `spawn` and write PNG bytes to disk instead of shell redirection
-- companion workspace releases: `@secrez/core@1.0.8`, `@secrez/crypto@1.0.7`, `@secrez/fs@1.0.9`, `@secrez/utils@1.0.6`, `@secrez/eth@0.0.6`
+- companion workspace releases: `@secrez/core@1.0.8`, `@secrez/crypto@1.0.7`, `@secrez/fs@1.0.9`, `@secrez/utils@1.0.7`, `@secrez/eth@0.0.6`
+- warn at signup when PBKDF2 iterations are below 100,000 and require explicit confirmation to proceed (KDF-3)
 
 **2.1.16**
 
@@ -945,63 +946,64 @@ Thank you for any contributions! 😉
 ## Test coverage
 
 ```
-  180 passing (25s)
+  184 passing (26s)
   1 pending
 
 --------------------|---------|----------|---------|---------|--------------------------------------
-File                | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s
+File                | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                    
 --------------------|---------|----------|---------|---------|--------------------------------------
-All files           |   76.67 |    65.37 |   74.09 |   77.26 |
- src                |   59.66 |    52.38 |   63.15 |   60.16 |
-  Command.js        |   74.66 |    74.13 |   78.57 |   75.67 | ...5-62,73,80,93,127,164-172,179-182
-  PreCommand.js     |   17.14 |     3.84 |      20 |   17.14 | 11-86
-  cliConfig.js      |     100 |      100 |     100 |     100 |
- src/commands       |   85.85 |    72.98 |   89.47 |   85.81 |
-  Alias.js          |    88.6 |    78.68 |     100 |   88.46 | 101,112,139,169,173,180,190,213-214
-  Bash.js           |      75 |        0 |   66.66 |      75 | 18-19
-  Cat.js            |   98.91 |    88.88 |     100 |   98.91 | 152
-  Cd.js             |   96.42 |    86.66 |     100 |   96.42 | 44
-  Conf.js           |      10 |        0 |   22.22 |      10 | 47-197
-  Contacts.js       |   86.06 |     75.6 |     100 |   85.95 | ...5,165,172,184,237,250,260,268-269
-  Copy.js           |    87.5 |    71.92 |   72.72 |   87.36 | ...7,127,178,195,217-222,237-238,265
-  Ds.js             |   90.27 |     82.6 |     100 |   90.14 | 99,108-113,125,147-148
-  Edit.js           |   71.18 |       65 |     100 |   71.18 | 63,69,78,89-97,134-148
-  Export.js         |   85.71 |    71.76 |   85.71 |   85.71 | ...4,232-236,241,253,262,265,269-283
-  Find.js           |    90.3 |    74.16 |     100 |   90.12 | ...3,282-302,371,423-426,441-444,451
-  Git.js            |   88.88 |    80.95 |     100 |   88.88 | 61,73,81,88,114
-  Help.js           |     100 |       80 |     100 |     100 | 29
-  Import.js         |   89.95 |    82.14 |   91.66 |   89.86 | ...4,414,420,468,484-485,493-500,527
-  Lcat.js           |     100 |    85.71 |     100 |     100 | 54
-  Lcd.js            |   95.65 |    81.81 |     100 |   95.65 | 50
-  Lls.js            |   95.45 |    72.72 |     100 |   95.45 | 97
-  Lpwd.js           |    92.3 |      100 |     100 |    92.3 | 36
-  Ls.js             |   91.54 |    76.31 |     100 |   91.04 | 103,114-116,130,185
-  Mkdir.js          |   92.59 |       60 |     100 |   92.59 | 56-57
-  Mv.js             |   86.59 |    71.66 |     100 |   86.31 | 93-99,133,155-156,165,175-182
-  Paste.js          |   84.61 |    70.83 |     100 |   84.61 | 72,78,81,89,113,130-131,139
-  Pwd.js            |    92.3 |      100 |     100 |    92.3 | 33
-  Quit.js           |   91.66 |       50 |     100 |   91.66 | 27
-  Rm.js             |    90.9 |       76 |     100 |   90.74 | 63,125-126,136,144
-  Shell.js          |   86.66 |       40 |   88.88 |   86.66 | 15,21,65,82
-  Show.js           |   72.54 |    45.45 |   57.14 |      74 | ...8,100,106-114,117,123-126,132,145
-  Ssh.js            |      78 |    57.69 |   85.71 |      78 | 87,95,100,129,133,141-148
-  Tag.js            |   96.26 |    91.37 |     100 |   96.22 | 122,171,204-205
-  Totp.js           |   80.18 |    70.76 |   61.53 |    80.9 | ...6,195-196,236,246,288-293,307-308
-  Touch.js          |   96.36 |    80.64 |     100 |   96.29 | 164,240
-  Use.js            |   91.66 |    86.95 |     100 |   91.66 | 68,83-84
-  Ver.js            |      90 |    66.66 |     100 |      90 | 25
-  Whoami.js         |   83.33 |       60 |      80 |   83.33 | 27,35,48
-  index.js          |    87.5 |       50 |     100 |   86.95 | 15,22,31
- src/editor         |    4.72 |        0 |       0 |    5.21 |
-  MemoryEditor.js   |    4.51 |        0 |       0 |    5.16 | 16-34,39-275
-  onKeypress.js     |    5.19 |        0 |       0 |    5.33 | 14-125
- src/prompts        |      72 |    33.33 |   36.36 |      72 |
-  MainPromptMock.js |      72 |    33.33 |   36.36 |      72 | 29-35,44-50
- src/utils          |   83.07 |    78.43 |   66.66 |   82.81 |
-  AliasManager.js   |     100 |    91.66 |     100 |     100 | 47
-  ContactManager.js |   73.33 |       60 |   85.71 |   73.33 | 12,34-36
-  HelpProto.js      |   89.07 |     82.6 |     100 |   88.88 | 49,135-137,153-154,171-176,195
-  Logger.js         |   63.63 |    56.25 |   36.84 |   62.79 | ...25,37-49,57,65-69,74,84,88,93,105
+All files           |   75.19 |     64.2 |   72.51 |   75.74 |                                      
+ src                |   44.55 |    39.65 |   44.82 |   44.79 |                                      
+  Command.js        |   74.66 |    74.13 |   78.57 |   75.67 | ...5-62,73,80,93,127,164-172,179-182 
+  PreCommand.js     |   17.14 |     3.84 |      20 |   17.14 | 11-86                                
+  Welcome.js        |   20.27 |     6.25 |      10 |   20.27 | 11-67,97-181                         
+  cliConfig.js      |     100 |      100 |     100 |     100 |                                      
+ src/commands       |   85.86 |    72.98 |   89.47 |   85.81 |                                      
+  Alias.js          |    88.6 |    78.68 |     100 |   88.46 | 101,112,139,169,173,180,190,213-214  
+  Bash.js           |      75 |        0 |   66.66 |      75 | 18-19                                
+  Cat.js            |   98.91 |    88.88 |     100 |   98.91 | 152                                  
+  Cd.js             |   96.42 |    86.66 |     100 |   96.42 | 44                                   
+  Conf.js           |      10 |        0 |   22.22 |      10 | 47-197                               
+  Contacts.js       |   86.06 |     75.6 |     100 |   85.95 | ...5,165,172,184,237,250,260,268-269 
+  Copy.js           |    87.5 |    71.92 |   72.72 |   87.36 | ...7,127,178,195,217-222,237-238,265 
+  Ds.js             |   90.27 |     82.6 |     100 |   90.14 | 99,108-113,125,147-148               
+  Edit.js           |   71.18 |       65 |     100 |   71.18 | 63,69,78,89-97,134-148               
+  Export.js         |   85.71 |    71.76 |   85.71 |   85.71 | ...4,232-236,241,253,262,265,269-283 
+  Find.js           |    90.3 |    74.16 |     100 |   90.12 | ...3,282-302,371,423-426,441-444,451 
+  Git.js            |   88.88 |    80.95 |     100 |   88.88 | 61,73,81,88,114                      
+  Help.js           |     100 |       80 |     100 |     100 | 29                                   
+  Import.js         |   89.95 |    82.14 |   91.66 |   89.86 | ...4,414,420,468,484-485,493-500,527 
+  Lcat.js           |     100 |    85.71 |     100 |     100 | 54                                   
+  Lcd.js            |   95.65 |    81.81 |     100 |   95.65 | 50                                   
+  Lls.js            |   95.45 |    72.72 |     100 |   95.45 | 97                                   
+  Lpwd.js           |    92.3 |      100 |     100 |    92.3 | 36                                   
+  Ls.js             |   91.54 |    76.31 |     100 |   91.04 | 103,114-116,130,185                  
+  Mkdir.js          |   92.59 |       60 |     100 |   92.59 | 56-57                                
+  Mv.js             |   86.59 |    71.66 |     100 |   86.31 | 93-99,133,155-156,165,175-182        
+  Paste.js          |   84.61 |    70.83 |     100 |   84.61 | 72,78,81,89,113,130-131,139          
+  Pwd.js            |    92.3 |      100 |     100 |    92.3 | 33                                   
+  Quit.js           |    92.3 |       50 |     100 |    92.3 | 27                                   
+  Rm.js             |    90.9 |       76 |     100 |   90.74 | 63,125-126,136,144                   
+  Shell.js          |   86.66 |       40 |   88.88 |   86.66 | 15,21,65,82                          
+  Show.js           |   72.54 |    45.45 |   57.14 |      74 | ...8,100,106-114,117,123-126,132,145 
+  Ssh.js            |      78 |    57.69 |   85.71 |      78 | 87,95,100,129,133,141-148            
+  Tag.js            |   96.26 |    91.37 |     100 |   96.22 | 122,171,204-205                      
+  Totp.js           |   80.18 |    70.76 |   61.53 |    80.9 | ...6,195-196,236,246,288-293,307-308 
+  Touch.js          |   96.36 |    80.64 |     100 |   96.29 | 164,240                              
+  Use.js            |   91.66 |    86.95 |     100 |   91.66 | 68,83-84                             
+  Ver.js            |      90 |    66.66 |     100 |      90 | 25                                   
+  Whoami.js         |   83.33 |       60 |      80 |   83.33 | 27,35,48                             
+  index.js          |    87.5 |       50 |     100 |   86.95 | 15,22,31                             
+ src/editor         |    4.72 |        0 |       0 |    5.21 |                                      
+  MemoryEditor.js   |    4.51 |        0 |       0 |    5.16 | 16-34,39-275                         
+  onKeypress.js     |    5.19 |        0 |       0 |    5.33 | 14-125                               
+ src/prompts        |      72 |    33.33 |   36.36 |      72 |                                      
+  MainPromptMock.js |      72 |    33.33 |   36.36 |      72 | 29-35,44-50                          
+ src/utils          |   83.58 |    78.43 |   69.23 |   83.33 |                                      
+  AliasManager.js   |     100 |    91.66 |     100 |     100 | 47                                   
+  ContactManager.js |   73.33 |       60 |   85.71 |   73.33 | 12,34-36                             
+  HelpProto.js      |   89.07 |     82.6 |     100 |   88.88 | 49,135-137,153-154,171-176,195       
+  Logger.js         |    65.9 |    56.25 |    42.1 |   65.11 | ...16,25,37-49,57,69,74,84,88,93,105 
 --------------------|---------|----------|---------|---------|--------------------------------------
 
 > secrez@2.2.0 posttest /Users/francescosullo/Projects/Secrez/secrez/packages/secrez

@@ -433,5 +433,17 @@ describe("#Crypto", function () {
         base64c.toString()
       );
     });
+
+    it("should roundtrip URL-safe base64 for many payload lengths", function () {
+      for (let len = 1; len <= 256; len++) {
+        const base64 = Buffer.alloc(len, len % 256).toString("base64");
+        const safe = Crypto.fromBase64ToFsSafeBase64(base64);
+        assert.equal(Crypto.fromFsSafeBase64ToBase64(safe), base64);
+        assert.deepEqual(
+          Crypto.bs64.decode(Crypto.fromFsSafeBase64ToBase64(safe)),
+          Crypto.bs64.decode(base64)
+        );
+      }
+    });
   });
 });
