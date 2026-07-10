@@ -191,6 +191,43 @@ describe("#Find", function () {
     ]);
   });
 
+  it("should search the entire current dataset with global option", async function () {
+    let { internalFs } = prompt;
+    let { config } = prompt.secrez;
+
+    await noPrint(
+      internalFs.make({
+        path: "outside/global-find",
+        type: config.types.TEXT,
+      })
+    );
+
+    await noPrint(
+      internalFs.make({
+        path: "folder/inside/global-find",
+        type: config.types.TEXT,
+      })
+    );
+
+    await noPrint(
+      C.cd.exec({
+        path: "/folder",
+      })
+    );
+
+    inspect = stdout.inspect();
+    await C.find.exec({
+      keywords: "global-find",
+      global: true,
+    });
+    inspect.restore();
+    assertConsole(inspect, [
+      "2 results found:",
+      "1  main:/folder/inside/global-find",
+      "2  main:/outside/global-find",
+    ]);
+  });
+
   it("should find no result without parameters", async function () {
     inspect = stdout.inspect();
     await C.find.exec({});
