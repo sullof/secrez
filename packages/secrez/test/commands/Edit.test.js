@@ -87,6 +87,24 @@ describe("#Edit", function () {
     assert.equal(content, "updated value");
   });
 
+  it("should update an existing file using a dataset-qualified path", async function () {
+    await C.touch.touch({
+      path: "/folder2/to-edit",
+      content: "old value",
+    });
+
+    mockEditor("updated via main prefix");
+    inspect = stdout.inspect();
+    await C.edit.edit({ path: "main:/folder2/to-edit" });
+    inspect.restore();
+    assertConsole(inspect, "File saved.");
+
+    let content = (
+      await C.cat.cat({ path: "/folder2/to-edit", unformatted: true })
+    )[0].content;
+    assert.equal(content, "updated via main prefix");
+  });
+
   it("should edit a single yaml field", async function () {
     await C.touch.touch({
       path: "/cards/site.yml",

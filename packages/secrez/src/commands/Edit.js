@@ -44,6 +44,7 @@ class Edit extends require("../Command") {
         "Editor commands:",
         "   Ctrl-c to cancel",
         "   Ctrl-d to save",
+        "   Ctrl-k to delete the current line",
       ],
       examples: [
         ["edit ../coins/ether2-pwd", "edits a secret file"],
@@ -51,27 +52,32 @@ class Edit extends require("../Command") {
           "edit gmail.yml -f password",
           "edits only the field password of the yaml file. If the field does not exist, a new field is added",
         ],
+        [
+          "edit main:/gmail.yml -f password",
+          "edits a file using a dataset-qualified path",
+        ],
         ["edit damaged.yaml -u", "edits damaged.yaml without parsing it"],
       ],
     };
   }
 
   async edit(options) {
-    let file = options.path;
-    if (/:/.test(file)) {
-      // TODO Fix this
-      throw new Error(
-        "Edit works only on the current dataset. Remove the dataset from the path, please"
-      );
-    }
-    let sanitizedPath = Entry.sanitizePath(options.path);
-    if (sanitizedPath !== options.path) {
+    let data = await this.internalFs.getTreeIndexAndPath(options.path);
+    let file = data.path;
+    let tree = data.tree;
+
+    let sanitizedPath = Entry.sanitizePath(file);
+    if (sanitizedPath !== file) {
       throw new Error("A filename cannot contain \\/><|:&?*^$ chars.");
     }
+
     let exists = false;
     let fileData;
     try {
-      fileData = await this.prompt.commands.cat.cat({ path: file }, true);
+      fileData = await this.prompt.commands.cat.cat(
+        { path: options.path },
+        true
+      );
       exists = true;
     } catch (e) {
       if (options.field) {
@@ -80,8 +86,9 @@ class Edit extends require("../Command") {
       fileData = [{ content: "" }];
     }
 
+    let p = tree.getNormalizedPath(file);
     let fields = {};
-    if (exists && !options.unformatted && isYaml(file)) {
+    if (exists && !options.unformatted && isYaml(p)) {
       fields = fileData[0].content ? yamlParse(fileData[0].content) : {};
       if (typeof fields === "object") {
         options.choices = Object.keys(fields);
@@ -96,7 +103,7 @@ class Edit extends require("../Command") {
       } else {
         delete options.field;
       }
-    } else if (!isYaml(file)) {
+    } else if (!isYaml(p)) {
       delete options.field;
     }
     let content = options.field
@@ -106,7 +113,7 @@ class Edit extends require("../Command") {
 
     if (newContent && newContent !== content) {
       if (exists) {
-        let node = this.internalFs.tree.workingNode.getChildFromPath(file);
+        let node = tree.root.getChildFromPath(p);
         let entry = node.getEntry();
         if (options.field) {
           fields[options.field] = _.trim(newContent);
@@ -114,10 +121,10 @@ class Edit extends require("../Command") {
         } else {
           entry.set({ content: newContent });
         }
-        await this.internalFs.tree.update(node, entry);
+        await tree.update(node, entry);
       } else {
         await this.prompt.commands.touch.touch({
-          path: file,
+          path: options.path,
           content: newContent,
         });
       }

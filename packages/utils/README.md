@@ -25,7 +25,7 @@ This is a utils library used by other packages in the @secrez suite.
 ## Test coverage
 
 ```
-  38 passing (138ms)
+  38 passing (139ms)
 
 -------------|---------|----------|---------|---------|---------------------
 File         | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s   

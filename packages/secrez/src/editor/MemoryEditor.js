@@ -12,7 +12,8 @@ const onKeypress = require("./onKeypress");
 
 const insert = (s, x, c) => s.slice(0, x) + c + s.slice(x);
 
-const EDITOR_STATUS = "Ctrl-d save · Ctrl-c abort";
+const EDITOR_STATUS =
+  "Ctrl-d save · Ctrl-c abort · Ctrl-k del line · Ctrl-a home · Ctrl-e end · Ctrl-g reset";
 
 function terminalRows() {
   return process.stdout.rows || 24;
@@ -25,6 +26,7 @@ function keyAction(key) {
     if (key.name === "d") return "abort";
     if (key.name === "e") return "last";
     if (key.name === "g") return "reset";
+    if (key.name === "k") return "deleteLine";
   }
   if (key.name === "return" || key.name === "enter") return "submit";
   if (key.name === "backspace") return "delete";
@@ -148,6 +150,23 @@ const Editor = {
       return;
     }
 
+    this.update();
+    this.render();
+  },
+
+  deleteLine() {
+    const { lines, cursorY } = this;
+    if (lines.length === 1) {
+      lines[0] = "";
+      this.cursorX = 0;
+      this.cursorY = 0;
+    } else {
+      lines.splice(cursorY, 1);
+      if (cursorY >= lines.length) {
+        this.cursorY = lines.length - 1;
+      }
+      this.cursorX = 0;
+    }
     this.update();
     this.render();
   },
