@@ -50,7 +50,7 @@ class Find extends require("../Command") {
         name: "global",
         alias: "g",
         type: Boolean,
-        hint: "Search in all the datasets",
+        hint: "Search in all datasets from root",
       },
       {
         name: "trash-too",
@@ -104,6 +104,10 @@ class Find extends require("../Command") {
   }
 
   async find(options) {
+    if (options.global) {
+      options.root = true;
+    }
+
     // Handle recent mode
     if (options.recent) {
       // Set default limit if not specified by user
