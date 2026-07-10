@@ -26,6 +26,7 @@ API documentation
 - guard crypto APIs with `assertLoggedIn()` after signout
 - replace deprecated `homedir` package with `os.homedir()`
 - require Node.js 20 or later (`engines.node >=20.0.0`)
+- fix `decryptEntry` content-only path: set `ts` from `e.t` instead of `e.i` (SIG-4)
 
 **1.0.7**
 
@@ -39,15 +40,15 @@ API documentation
 ## Test coverage
 
 ```
-  55 passing (811ms)
+  56 passing (806ms)
 
 -----------------|---------|----------|---------|---------|----------------------
 File             | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s    
 -----------------|---------|----------|---------|---------|----------------------
-All files        |   98.04 |     91.9 |   98.57 |   98.04 |                      
- src             |   97.91 |    93.57 |   98.33 |   97.91 |                      
+All files        |   98.04 |    92.48 |   98.57 |   98.04 |                      
+ src             |   97.91 |    94.28 |   98.33 |   97.91 |                      
   Entry.js       |     100 |    95.65 |     100 |     100 | 39                   
-  Secrez.js      |     100 |    96.59 |     100 |     100 | 222,339              
+  Secrez.js      |     100 |    97.72 |     100 |     100 | 222                  
   _Secrez.js     |   94.54 |    82.75 |      96 |   94.54 | 11,14-15,114,249-250 
  src/config      |   98.57 |    84.84 |     100 |   98.57 |                      
   ConfigUtils.js |   98.48 |    84.84 |     100 |   98.48 | 137                  

@@ -332,7 +332,7 @@ module.exports = function () {
 
           let decryptedEntry = new Entry({
             id: e.i,
-            ts: e.i,
+            ts: e.t,
             content: e.c,
           });
 

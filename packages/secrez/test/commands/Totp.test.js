@@ -205,9 +205,6 @@ describe("#Totp", function () {
   });
 
   it("should read clipboard png via xclip without shell interpolation", async function () {
-    if (process.platform !== "linux") {
-      this.skip();
-    }
     const childProcess = require("child_process");
     const originalSpawn = childProcess.spawn;
     let spawnArgs;
@@ -234,7 +231,7 @@ describe("#Totp", function () {
         "-o",
       ]);
       assert.isTrue(await fs.pathExists(outputPath));
-      assert.equal(await fs.readFile(outputPath, "utf8"), "png");
+      assert.equal((await fs.readFile(outputPath)).toString(), "png");
     } finally {
       childProcess.spawn = originalSpawn;
     }

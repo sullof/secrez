@@ -60,7 +60,9 @@ describe("#Quit", function () {
       order.push("exit");
     };
     try {
+      inspect = stdout.inspect();
       await C.quit.exec({});
+      inspect.restore();
       assert.deepEqual(order, ["saveHistory", "signout", "exit"]);
     } finally {
       process.env.NODE_ENV = originalEnv;

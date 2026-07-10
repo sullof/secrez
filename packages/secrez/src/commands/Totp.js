@@ -2,7 +2,8 @@ const { authenticator } = require("otplib");
 const path = require("path");
 const os = require("os");
 const fs = require("fs-extra");
-const { execSync, spawn } = require("child_process");
+const childProcess = require("child_process");
+const { execSync } = childProcess;
 const {
   isYaml,
   yamlParse,
@@ -130,7 +131,7 @@ class Totp extends require("../Command") {
 
   async writeClipboardPngToFile(outputPath) {
     return new Promise((resolve, reject) => {
-      const child = spawn("xclip", [
+      const child = childProcess.spawn("xclip", [
         "-selection",
         "clipboard",
         "-t",

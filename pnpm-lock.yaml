@@ -27,7 +27,7 @@ importers:
   packages/core:
     dependencies:
       '@secrez/crypto':
-        specifier: workspace:~1.0.8
+        specifier: workspace:~1.0.7
         version: link:../crypto
       '@secrez/utils':
         specifier: workspace:~1.0.6
@@ -123,7 +123,7 @@ importers:
         specifier: workspace:~1.0.8
         version: link:../core
       '@secrez/crypto':
-        specifier: workspace:~1.0.8
+        specifier: workspace:~1.0.7
         version: link:../crypto
       '@secrez/utils':
         specifier: workspace:~1.0.6
@@ -163,7 +163,7 @@ importers:
         specifier: workspace:~1.0.8
         version: link:../core
       '@secrez/crypto':
-        specifier: workspace:~1.0.8
+        specifier: workspace:~1.0.7
         version: link:../crypto
       '@secrez/eth':
         specifier: workspace:~0.0.6

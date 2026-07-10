@@ -1,5 +1,7 @@
 "use strict";
 
+/* istanbul ignore file -- interactive TUI editor; tests use prompt.editorProvider */
+
 // In-memory terminal editor vendored from tiny-cli-editor (ISC) and prompt-skeleton.
 // https://github.com/derhuerst/tiny-cli-editor
 

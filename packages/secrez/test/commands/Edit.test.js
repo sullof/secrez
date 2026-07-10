@@ -76,7 +76,10 @@ describe("#Edit", function () {
     assert.equal(before, "old value");
 
     mockEditor("updated value");
+    inspect = stdout.inspect();
     await C.edit.edit({ path: "/folder2/to-edit" });
+    inspect.restore();
+    assertConsole(inspect, "File saved.");
 
     let content = (
       await C.cat.cat({ path: "/folder2/to-edit", unformatted: true })
@@ -91,7 +94,10 @@ describe("#Edit", function () {
     });
 
     mockEditor("new@example.com");
+    inspect = stdout.inspect();
     await C.edit.edit({ path: "/cards/site.yml", field: "email" });
+    inspect.restore();
+    assertConsole(inspect, "File saved.");
 
     let fields = yamlParse(
       (await C.cat.cat({ path: "/cards/site.yml", unformatted: true }))[0]
