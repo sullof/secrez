@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const path = require("path");
-const homedir = require("homedir");
+const { homedir } = require("os");
 const chalk = require("chalk");
 const commandLineArgs = require("command-line-args");
 

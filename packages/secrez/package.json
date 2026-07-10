@@ -26,14 +26,13 @@
     "command-line-args": "^5.2.1",
     "ansi-escapes": "^4.3.2",
     "fs-extra": "^9.1.0",
-    "homedir": "^0.6.0",
     "inquirer": "^7.3.3",
     "inquirer-command-prompt": "^0.1.0",
-    "jimp": "^0.13.0",
+    "jimp": "^1.6.0",
+    "jsqr": "^1.4.0",
     "lodash": "^4.17.21",
     "otplib": "^12.0.1",
-    "qrcode": "^1.5.4",
-    "qrcode-reader": "^1.0.4"
+    "qrcode": "^1.5.4"
   },
   "devDependencies": {
     "@secrez/test-helpers": "workspace:~2.0.3",

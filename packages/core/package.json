@@ -15,7 +15,6 @@
     "@secrez/crypto": "workspace:~1.0.7",
     "@secrez/utils": "workspace:~1.0.6",
     "fs-extra": "^9.1.0",
-    "homedir": "^0.6.0",
     "lodash": "^4.17.21"
   },
   "devDependencies": {

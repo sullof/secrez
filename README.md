@@ -403,6 +403,8 @@ Secrez is not intended to compete with password managers, so do not expect it to
 - strengthen password-based export encryption (`.secrez` files): new **v2** format uses PBKDF2 with a random salt stored in the file; password and iteration count are required at import (`-i`); legacy **v1** exports remain importable with password only
 - require Node.js 20 or later (`engines.node >=20.0.0`)
 - clear cryptographic secrets from memory on `signout`, `quit`, and double `^C` (best-effort buffer zeroing)
+- replace deprecated dependencies: `homedir` → `os.homedir`, `ethereumjs-util` → `ethers.getAddress`, `qrcode-reader` → `jsqr`, upgrade `jimp` to 1.x
+- harden `totp --from-clipboard` on Linux: run `xclip` with `spawn` and write PNG bytes to disk instead of shell redirection
 
 **2.1.16**
 
@@ -943,16 +945,17 @@ Thank you for any contributions! 😉
 
 ```
   180 passing (25s)
+  1 pending
 
 --------------------|---------|----------|---------|---------|--------------------------------------
 File                | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                    
 --------------------|---------|----------|---------|---------|--------------------------------------
-All files           |   77.12 |    65.53 |   75.45 |   77.69 |                                      
+All files           |   76.67 |    65.37 |   74.09 |   77.26 |                                      
  src                |   59.66 |    52.38 |   63.15 |   60.16 |                                      
   Command.js        |   74.66 |    74.13 |   78.57 |   75.67 | ...5-62,73,80,93,127,164-172,179-182 
   PreCommand.js     |   17.14 |     3.84 |      20 |   17.14 | 11-86                                
   cliConfig.js      |     100 |      100 |     100 |     100 |                                      
- src/commands       |   86.47 |     73.2 |   91.59 |   86.39 |                                      
+ src/commands       |   85.85 |    72.98 |   89.47 |   85.81 |                                      
   Alias.js          |    88.6 |    78.68 |     100 |   88.46 | 101,112,139,169,173,180,190,213-214  
   Bash.js           |      75 |        0 |   66.66 |      75 | 18-19                                
   Cat.js            |   98.91 |    88.88 |     100 |   98.91 | 152                                  
@@ -982,7 +985,7 @@ All files           |   77.12 |    65.53 |   75.45 |   77.69 |
   Show.js           |   72.54 |    45.45 |   57.14 |      74 | ...8,100,106-114,117,123-126,132,145 
   Ssh.js            |      78 |    57.69 |   85.71 |      78 | 87,95,100,129,133,141-148            
   Tag.js            |   96.26 |    91.37 |     100 |   96.22 | 122,171,204-205                      
-  Totp.js           |   92.23 |       75 |     100 |   92.23 | 189-190,230,240,282-287,301-302      
+  Totp.js           |   80.18 |    70.76 |   61.53 |    80.9 | ...6,195-196,236,246,288-293,307-308 
   Touch.js          |   96.36 |    80.64 |     100 |   96.29 | 164,240                              
   Use.js            |   91.66 |    86.95 |     100 |   91.66 | 68,83-84                             
   Ver.js            |      90 |    66.66 |     100 |      90 | 25                                   
@@ -999,6 +1002,11 @@ All files           |   77.12 |    65.53 |   75.45 |   77.69 |
   HelpProto.js      |   89.07 |     82.6 |     100 |   88.88 | 49,135-137,153-154,171-176,195       
   Logger.js         |   63.63 |    56.25 |   36.84 |   62.79 | ...25,37-49,57,65-69,74,84,88,93,105 
 --------------------|---------|----------|---------|---------|--------------------------------------
+
+> secrez@2.2.0 posttest /Users/francescosullo/Projects/Secrez/secrez/packages/secrez
+> nyc check-coverage --statements 65 --branches 50 --functions 65 --lines 65
+
+
 ```
 
 ## Copyright

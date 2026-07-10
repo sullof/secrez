@@ -1,4 +1,4 @@
-const homedir = require("homedir");
+const { homedir } = require("os");
 const fs = require("fs-extra");
 const _ = require("lodash");
 const Crypto = require("@secrez/crypto");

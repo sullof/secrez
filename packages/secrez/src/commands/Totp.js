@@ -2,7 +2,7 @@ const { authenticator } = require("otplib");
 const path = require("path");
 const os = require("os");
 const fs = require("fs-extra");
-const { execSync } = require("child_process");
+const { execSync, spawn } = require("child_process");
 const {
   isYaml,
   yamlParse,
@@ -11,8 +11,8 @@ const {
   TRUE,
 } = require("@secrez/utils");
 const { Node } = require("@secrez/fs");
-const QrCode = require("qrcode-reader");
-const Jimp = require("jimp");
+const { Jimp } = require("jimp");
+const jsQR = require("jsqr");
 
 class Totp extends require("../Command") {
   setHelpAndCompletion() {
@@ -128,6 +128,31 @@ class Totp extends require("../Command") {
     }
   }
 
+  async writeClipboardPngToFile(outputPath) {
+    return new Promise((resolve, reject) => {
+      const child = spawn("xclip", [
+        "-selection",
+        "clipboard",
+        "-t",
+        "image/png",
+        "-o",
+      ]);
+      const chunks = [];
+      child.stdout.on("data", (data) => chunks.push(data));
+      child.on("error", (error) => {
+        reject(new Error(error.message));
+      });
+      child.on("close", async (code) => {
+        if (code !== 0) {
+          reject(new Error("Wrong content in the clipboard"));
+          return;
+        }
+        await fs.writeFile(outputPath, Buffer.concat(chunks));
+        resolve();
+      });
+    });
+  }
+
   async readFromClipboard(options) {
     /* istanbul ignore if  */
     if (TRUE()) {
@@ -145,13 +170,7 @@ class Totp extends require("../Command") {
           }
           break;
         default:
-          try {
-            result = execSync(
-              `xclip -selection clipboard -t image/png -o > ${p}`
-            ).toString();
-          } catch (e) {
-            throw new Error("Wrong content in the clipboard");
-          }
+          await this.writeClipboardPngToFile(p);
       }
       return p;
     }
@@ -160,26 +179,13 @@ class Totp extends require("../Command") {
   async readFromImage(options) {
     let p = this.externalFs.getNormalizedPath(options.fromImage);
     const buffer = await fs.readFile(p);
-    return new Promise((resolve, reject) => {
-      Jimp.read(buffer, (err, image) => {
-        if (err) {
-          reject(err.message);
-        }
-        const qr = new QrCode();
-        qr.callback = (err, value) => {
-          /* istanbul ignore if  */
-          if (err) {
-            reject(err.message);
-          }
-          resolve(value.result);
-        };
-        try {
-          qr.decode(image.bitmap);
-        } catch (e) {
-          reject(e.message);
-        }
-      });
-    });
+    const image = await Jimp.read(buffer);
+    const { data, width, height } = image.bitmap;
+    const code = jsQR(new Uint8ClampedArray(data), width, height);
+    if (!code) {
+      throw new Error("No QR code found in the image");
+    }
+    return code.data;
   }
 
   async totp(options = {}) {
