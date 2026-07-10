@@ -27,7 +27,7 @@ describe("#Quit", function () {
     await prompt.internalFs.init();
   });
 
-  it("should show the content of an external file via bash", async function () {
+  it("should quit and show the bye message", async function () {
     inspect = stdout.inspect();
     await C.quit.exec({});
     inspect.restore();

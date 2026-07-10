@@ -1,5 +1,6 @@
 const path = require("path");
 const fs = require("fs-extra");
+const { VaultPermissions } = require("@secrez/core");
 
 class DataCache {
   constructor(dataPath, secrez) {
@@ -8,7 +9,7 @@ class DataCache {
     this.encrypted = {};
     if (dataPath) {
       this.dataPath = dataPath;
-      fs.ensureDirSync(dataPath);
+      VaultPermissions.ensureDirSync(dataPath);
       this.ensured = {};
     }
   }
@@ -102,7 +103,7 @@ class DataCache {
 
   ensure(key) {
     if (!this.ensured[key]) {
-      fs.ensureDirSync(path.join(this.dataPath, key));
+      VaultPermissions.ensureDirSync(path.join(this.dataPath, key));
       this.ensured[key] = true;
     }
   }
@@ -124,7 +125,7 @@ class DataCache {
         }
       }
       if (changed) {
-        await fs.writeFile(p, content);
+        await VaultPermissions.writeFile(p, content);
       }
       if (this.encrypted[key]) {
         data.encryptedValue = value;
