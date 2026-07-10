@@ -20,6 +20,12 @@ API documentation
 
 ## History
 
+**1.0.9**
+
+- strengthen password-based export encryption in `FileCipher`: new **v2** format (PBKDF2, random salt in file, iterations out of band)
+- add `fileCipherLegacy` module and `FileCipherLegacy` export for **v1** password-encrypted files (import compatibility and test fixtures)
+- require Node.js 20 or later (`engines.node >=20.0.0`)
+
 **1.0.3**
 
 - Move `encryptFile` and `decryptFile` from ExternalFs to FileCipher

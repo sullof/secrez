@@ -12,6 +12,10 @@ API documentation
 
 ## History
 
+**1.0.7**
+
+- fix `boxDecrypt` to slice ciphertext using the decoded buffer length instead of the encoded string length; accept `Uint8Array` input like `decrypt()`
+
 **1.0.6**
 
 - remove Shamir secret-sharing helpers (`splitSecret`, `joinSecret`) and the `shamir` dependency

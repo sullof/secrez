@@ -6,6 +6,14 @@ This is a utils library used by other packages in the @secrez suite.
 
 ## History
 
+**1.0.7**
+
+- implement `secureCompare` with `crypto.timingSafeEqual` for constant-time comparison (PWD-3)
+
+**1.0.6**
+
+- require Node.js 20 or later (`engines.node >=20.0.0`)
+
 **1.0.1**
 
 - adds a workaound to avoid converting ETH addresses to floats

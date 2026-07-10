@@ -20,6 +20,13 @@ API documentation
 
 ## History
 
+**1.0.8**
+
+- clear cryptographic secrets from memory on `signout` via `clearSecrets()` (best-effort buffer zeroing)
+- guard crypto APIs with `assertLoggedIn()` after signout
+- replace deprecated `homedir` package with `os.homedir()`
+- require Node.js 20 or later (`engines.node >=20.0.0`)
+
 **1.0.7**
 
 - remove legacy shared-secret / second-factor authentication API (`sharedSignin`, `generateSharedSecrets`, `recoverSharedSecrets`, `removeSharedSecret`, `getSecondFactorData`, and related config); sign-in now requires only the master key

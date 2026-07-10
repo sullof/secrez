@@ -405,6 +405,7 @@ Secrez is not intended to compete with password managers, so do not expect it to
 - clear cryptographic secrets from memory on `signout`, `quit`, and double `^C` (best-effort buffer zeroing)
 - replace deprecated dependencies: `homedir` → `os.homedir`, `ethereumjs-util` → `ethers.getAddress`, `qrcode-reader` → `jsqr`, upgrade `jimp` to 1.x
 - harden `totp --from-clipboard` on Linux: run `xclip` with `spawn` and write PNG bytes to disk instead of shell redirection
+- companion workspace releases: `@secrez/core@1.0.8`, `@secrez/crypto@1.0.7`, `@secrez/fs@1.0.9`, `@secrez/utils@1.0.6`, `@secrez/eth@0.0.6`
 
 **2.1.16**
 

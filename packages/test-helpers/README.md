@@ -6,6 +6,12 @@ This is a utils library for testing.
 
 ## History
 
+**2.0.3**
+
+- add `fileCipherLegacy` test helpers (`encryptWithPassword`, `writeV1EncryptedFile`) for v1 `.secrez` export/import tests
+- add clipboard image test helpers (`clipboardTest`, `copyImageToClipboard`)
+- require Node.js 20 or later (`engines.node >=20.0.0`)
+
 **2.0.2**
 
 - add helpers to create, reset, and clone local bare git remotes for tests (`createBareRemote`, `resetBareRemote`, `cloneFromBareRemote`, `configureGitUser`)
