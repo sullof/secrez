@@ -1,5 +1,4 @@
 const { spawn } = require("child_process");
-const Crypto = require("./Crypto0");
 const _ = require("lodash");
 
 const utils0 = {
@@ -34,19 +33,6 @@ const utils0 = {
     }
     // eslint-disable-next-line no-control-regex
     return str.replace(/\x1b\[[0-9;]*m/g, "");
-  },
-
-  // taken from hubUtils
-  setPayloadAndSignIt(secrez, payload) {
-    const publicKey = secrez.getPublicKey();
-    payload = Object.assign(payload, {
-      when: Date.now(),
-      publicKey,
-      salt: Crypto.getRandomBase58String(16),
-    });
-    payload = JSON.stringify(payload);
-    const signature = secrez.signMessage(payload);
-    return { payload, signature };
   },
 };
 

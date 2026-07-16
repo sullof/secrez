@@ -11,6 +11,8 @@ This is a utils library for testing.
 - add `fileCipherLegacy` test helpers (`encryptWithPassword`, `writeV1EncryptedFile`) for v1 `.secrez` export/import tests
 - add clipboard image test helpers (`clipboardTest`, `copyImageToClipboard`)
 - require Node.js 20 or later (`engines.node >=20.0.0`)
+- remove unused `superagent` and dead HTTPS/`sendMessage` helpers left from the old shared-secrets test path
+- upgrade mocha to 10.x
 
 **2.0.2**
 
@@ -23,15 +25,15 @@ This is a utils library for testing.
 ## Test coverage
 
 ```
-  1 passing (2ms)
+  1 passing (3ms)
 
 ----------------------|---------|----------|---------|---------|----------------------
 File                  | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s    
 ----------------------|---------|----------|---------|---------|----------------------
-All files             |   10.87 |        2 |    7.31 |   11.31 |                      
- src                  |   14.08 |        0 |       4 |   16.26 |                      
-  index.js            |   14.08 |        0 |       4 |   16.26 | 21-212,225-274       
- src/lib              |   10.13 |     2.33 |    8.16 |   10.29 |                      
+All files             |    10.8 |        2 |    7.82 |   11.25 |                      
+ src                  |    14.4 |        0 |    5.55 |   16.98 |                      
+  index.js            |    14.4 |        0 |    5.55 |   16.98 | 19-159,172-221       
+ src/lib              |   10.06 |     2.33 |    8.24 |   10.23 |                      
   Crypto0.js          |   63.63 |    28.57 |      50 |   63.63 | 23,27,37-46          
   DataCache0.js       |    8.23 |     1.85 |    9.09 |    8.33 | 10-149               
   Entry0.js           |   48.27 |    26.08 |      50 |   48.27 | 13-19,27,40-45,60-68 
@@ -41,7 +43,7 @@ All files             |   10.87 |        2 |    7.31 |   11.31 |
   coreConfig.js       |     100 |      100 |     100 |     100 |                      
   fileCipherLegacy.js |      50 |      100 |       0 |      50 | 5-7                  
   gitTestRemote.js    |    8.77 |        0 |       0 |    8.77 | 7-129                
-  utils0.js           |      25 |        0 |    12.5 |      25 | 7-21,32-49           
+  utils0.js           |   27.77 |        0 |   14.28 |   27.77 | 6-20,31-35           
 ----------------------|---------|----------|---------|---------|----------------------
 ```
 

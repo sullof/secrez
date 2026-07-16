@@ -18,13 +18,12 @@
     "fs-extra": "^9.1.0",
     "lodash": "^4.17.21",
     "sha3": "^2.1.4",
-    "superagent": "^5.3.1",
     "test-console": "^1.1.0",
     "tweetnacl": "^1.0.3"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
-    "mocha": "^7.2.0",
+    "mocha": "^10.8.2",
     "nyc": "^15.1.0"
   },
   "description": "The common helpers used for testing",

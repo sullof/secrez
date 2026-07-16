@@ -1,6 +1,5 @@
 const path = require("path");
 const fs = require("fs");
-// eslint-disable-next-line node/no-unpublished-require
 
 function decolorize(str) {
   // eslint-disable-next-line no-control-regex
@@ -11,7 +10,6 @@ let target = process.argv[2];
 
 if (!fs.existsSync(path.resolve(__dirname, "../packages", target))) {
   console.error(`Wrong target: ${target}`);
-  // eslint-disable-next-line no-process-exit
   process.exit(1);
 }
 
@@ -27,7 +25,6 @@ for (let row of coverage) {
   row = decolorize(row);
 
   if (/ {2}\d+ failing/.test(row)) {
-    // eslint-disable-next-line no-process-exit
     process.exit(1);
   }
 

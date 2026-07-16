@@ -8,7 +8,7 @@
   "scripts": {
     "test": "pnpm -r test",
     "test-only": "pnpm -r run test-only",
-    "bin-lint": "eslint -c .eslintrc 'bin/*.js'",
+    "bin-lint": "eslint 'bin/*.js'",
     "reset": "bin/clean-all-modules.sh && pnpm install",
     "check-unused": "bin/check-unused.sh",
     "format": "npx prettier --write .",
@@ -19,11 +19,11 @@
     "patch-for-push": "npm run reset && npm run patch-versions && npm run pre-push"
   },
   "devDependencies": {
-    "eslint": "^7.32.0",
-    "eslint-config-prettier": "^8.10.0",
-    "eslint-plugin-prettier": "^3.4.1",
+    "eslint": "^9.39.2",
     "fs-extra": "^9.1.0",
-    "prettier": "^2.8.8"
+    "prettier": "^2.8.8",
+    "globals": "^16.0.0",
+    "@eslint/js": "^9.39.2"
   },
   "license": "MIT",
   "engines": {
