@@ -20,7 +20,7 @@ API documentation
 
 ## History
 
-**1.0.9**
+**1.1.0**
 
 - strengthen password-based export encryption in `FileCipher`: new **v2** format (PBKDF2, random salt in file, iterations out of band)
 - write vault blobs and cache files with mode `0o600` via `VaultPermissions` (FS-1)

@@ -17,7 +17,7 @@
     "hdkey": "^2.1.0"
   },
   "devDependencies": {
-    "@secrez/utils": "workspace:~1.0.6",
+    "@secrez/utils": "workspace:~1.1.0",
     "chai": "^4.5.0",
     "cross-env": "^7.0.3",
     "mocha": "^7.2.0",

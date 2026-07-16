@@ -12,7 +12,7 @@ API documentation
 
 ## History
 
-**1.0.7**
+**1.1.0**
 
 - fix `boxDecrypt` to slice ciphertext using the decoded buffer length instead of the encoded string length; accept `Uint8Array` input like `decrypt()` (ENC-3)
 - replace fragile URL-safe base64 padding loop in `fromFsSafeBase64ToBase64` with standard `while (length % 4)` restoration (ENC-5); output unchanged for valid Secrez data
@@ -51,7 +51,7 @@ All files |     100 |    89.13 |     100 |     100 |
  index.js |     100 |    89.13 |     100 |     100 | 34-45,78,104-115,195-199,224,398-402 
 ----------|---------|----------|---------|---------|--------------------------------------
 
-> @secrez/crypto@1.0.7 posttest /Users/francescosullo/Projects/Secrez/secrez/packages/crypto
+> @secrez/crypto@1.1.0 posttest /Users/francescosullo/Projects/Secrez/secrez/packages/crypto
 > nyc check-coverage --statements 99 --branches 85 --functions 99 --lines 99
 
 

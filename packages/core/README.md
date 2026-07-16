@@ -20,7 +20,7 @@ API documentation
 
 ## History
 
-**1.0.8**
+**1.1.0**
 
 - clear cryptographic secrets from memory on `signout` via `clearSecrets()` (best-effort buffer zeroing)
 - guard crypto APIs with `assertLoggedIn()` after signout
